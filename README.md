@@ -49,6 +49,7 @@ Then install the generated directory in OpenAgent through
 | `slash-commands` | A `/<plugin>:<command>` entry backed by a script | commands |
 | `sidebar-panel` | A sandboxed `ui/panel.html` sidebar view | sidebar |
 | `automation-hooks` | An `after_tool` hook with a declared message policy | automation |
+| `daemon` | A supervised long-lived capability daemon declaration | daemon |
 | `full-kit` | Every component in one package, as the complete reference | all |
 
 Every template is a complete package. `bun scripts/validate-plugin.mjs --all`

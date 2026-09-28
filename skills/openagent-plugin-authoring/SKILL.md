@@ -96,6 +96,11 @@ skipped.
 - Automation hooks receive the event payload on stdin. To display a message, set
   a `message_policies` entry and print `{"message": "...", "tag": "<tag>"}`;
   an undeclared tag is dropped. Plain text output is model context only.
+- A long-lived capability process can be declared with
+  `extensions.openagent.daemon`. Use a package-relative `command`, string
+  `args`, `stdio` or `socket` transport, and capability names. The host
+  validates containment and owns supervision; pair the daemon with a normal
+  MCP client when the capability is model-facing.
 - Declare `timeout_secs` between 1 and 300. A hook or command failure is isolated
   and reported; it never stops runtime finalization.
 

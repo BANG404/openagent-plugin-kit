@@ -1,0 +1,18 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "openagent-plugin-template-daemon",
+  "version": "1.0.0",
+  "description": "Reference package for a long-lived OpenAgent capability daemon.",
+  "license": "MIT",
+  "extensions": {
+    "openagent": {
+      "capabilities": ["daemon"],
+      "daemon": {
+        "command": "bin/daemon.mjs",
+        "args": ["--stdio"],
+        "transport": "stdio",
+        "capabilities": ["example"]
+      }
+    }
+  }
+}

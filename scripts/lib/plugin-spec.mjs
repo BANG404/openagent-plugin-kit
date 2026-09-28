@@ -368,6 +368,38 @@ function inspectExtensions(root, report, openagent) {
     }
   }
 
+  if (openagent.daemon !== undefined) {
+    const daemon = openagent.daemon;
+    const unknown = isPlainObject(daemon)
+      ? unknownKeys(daemon, ["command", "args", "transport", "capabilities"])
+      : ["daemon"];
+    const args = isPlainObject(daemon) ? daemon.args ?? [] : [];
+    const capabilities = isPlainObject(daemon) ? daemon.capabilities ?? [] : [];
+    const valid =
+      isPlainObject(daemon) &&
+      unknown.length === 0 &&
+      isComponentPath(daemon.command) &&
+      Array.isArray(args) &&
+      args.every((value) => typeof value === "string") &&
+      ["stdio", "socket"].includes(daemon.transport ?? "stdio") &&
+      Array.isArray(capabilities) &&
+      capabilities.every((value) => typeof value === "string");
+    if (!valid) {
+      push(
+        report,
+        "warning",
+        "Disabled plugin daemon: expected command, string args/capabilities, and stdio or socket transport",
+      );
+    } else {
+      report.daemon = {
+        command: daemon.command,
+        args,
+        transport: daemon.transport ?? "stdio",
+        capabilities,
+      };
+    }
+  }
+
   if (openagent.sidebar !== undefined) {
     if (!Array.isArray(openagent.sidebar)) {
       push(report, "warning", "Disabled sidebar: 'sidebar' must be an array");
@@ -438,6 +470,14 @@ function inspectExtensions(root, report, openagent) {
     );
     return false;
   });
+  if (report.daemon && !resolveContainedFile(root, report.daemon.command).ok) {
+    push(
+      report,
+      "warning",
+      `Disabled plugin daemon: command '${report.daemon.command}' is missing or outside the plugin root`,
+    );
+    report.daemon = null;
+  }
 }
 
 function validateCommand(entry) {
@@ -848,6 +888,7 @@ export function inspectPackage(packageDir) {
     sidebar: [],
     automation: [],
     messagePolicies: [],
+    daemon: null,
     diagnostics: [],
   };
   if (!existsSync(report.requestedRoot)) {
@@ -889,6 +930,7 @@ function describeComponents(report) {
     `${report.sidebar.length} sidebar view(s)`,
     `${report.automation.length} hook(s)`,
     `${report.messagePolicies.length} message policy(ies)`,
+    `${report.daemon ? 1 : 0} daemon`,
   ];
   return parts.join(", ");
 }

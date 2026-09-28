@@ -166,6 +166,28 @@ policy applied; an undeclared tag is rejected and the message is dropped. Plain
 text output keeps the default model-context behavior and is not persisted as a
 plugin message.
 
+### `daemon`
+
+Plugins that own a long-lived capability process may declare one daemon entry:
+
+```json
+{
+  "daemon": {
+    "command": "bin/daemon.mjs",
+    "args": ["--stdio"],
+    "transport": "stdio",
+    "capabilities": ["desktop-control"]
+  }
+}
+```
+
+`command` is a package-relative executable, `args` and `capabilities` are
+string arrays, and `transport` is `stdio` or `socket` (default `stdio`). The
+Runtime validates the declaration and package containment, then exposes the
+normalized descriptor to the host. The host owns supervision, permissions,
+endpoint selection, and shutdown. A daemon can expose an MCP client through
+the normal `mcp.json` entry.
+
 ### `sidebar`
 
 | Field | Required | Rules |
