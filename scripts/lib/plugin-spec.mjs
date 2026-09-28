@@ -318,6 +318,17 @@ function push(report, level, message) {
 }
 
 function inspectExtensions(root, report, openagent) {
+  if (openagent.runtime !== undefined) {
+    if (!["chat-groups", "goal", "graph", "cua-driver"].includes(openagent.runtime)) {
+      push(
+        report,
+        "warning",
+        "Ignored plugin runtime binding: expected chat-groups, goal, graph, or cua-driver",
+      );
+    } else {
+      report.runtime = openagent.runtime;
+    }
+  }
   const capabilities = stringArray(openagent.capabilities);
   if (capabilities.ok) {
     report.capabilities = capabilities.values;
@@ -889,6 +900,7 @@ export function inspectPackage(packageDir) {
     automation: [],
     messagePolicies: [],
     daemon: null,
+    runtime: null,
     diagnostics: [],
   };
   if (!existsSync(report.requestedRoot)) {

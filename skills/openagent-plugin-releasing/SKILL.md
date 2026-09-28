@@ -11,6 +11,15 @@ Update delivery is explicit and verified. `repository` in `plugin.json` points a
 an HTTPS GitHub repository; the product checks its latest stable release and
 offers an update only after the user acts.
 
+The product-owned packages use these independent GitHub subscriptions:
+
+- `chat-groups`: https://github.com/BANG404/openagent-chat-groups
+- `goal`: https://github.com/BANG404/openagent-goal
+- `graph`: https://github.com/BANG404/openagent-graph
+
+Keep each package's `runtime` binding and repository URL aligned with its
+OpenAgent Runtime registration.
+
 ## Prepare the package
 
 1. Set `repository` to the published HTTPS GitHub URL.

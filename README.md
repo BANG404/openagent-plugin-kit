@@ -55,6 +55,16 @@ Then install the generated directory in OpenAgent through
 Every template is a complete package. `bun scripts/validate-plugin.mjs --all`
 fails if any of them drifts from the contract.
 
+OpenAgent's product-owned standard packages are published separately so they
+can be subscribed to directly from GitHub:
+
+- [Chat Groups](https://github.com/BANG404/openagent-chat-groups)
+- [Goal](https://github.com/BANG404/openagent-goal)
+- [Graph](https://github.com/BANG404/openagent-graph)
+
+Each package declares its matching `extensions.openagent.runtime` binding and
+publishes verified release archives for the host updater.
+
 ## Layout
 
 ```text

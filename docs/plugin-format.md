@@ -204,6 +204,27 @@ Entries run as UTF-8 HTML in a sandboxed iframe. The host posts a versioned
 `capabilities`. File access is metadata-only: names and change kinds, never file
 contents or diffs, and never transcript text or another plugin's state.
 
+### `runtime`
+
+OpenAgent product plugins may declare a trusted Runtime binding when the
+plugin's durable execution is owned by the OpenAgent Runtime:
+
+```json
+{
+  "extensions": {
+    "openagent": {
+      "runtime": "goal"
+    }
+  }
+}
+```
+
+Supported bindings are `chat-groups`, `goal`, `graph`, and `cua-driver`. The
+binding identifies one matching product capability; it does not grant a
+package authority over another plugin or over Runtime state. OpenAgent uses
+the package repository as the subscription source and only overlays a matching
+binding from a verified GitHub release.
+
 ### `automation`
 
 | Field | Required | Rules |

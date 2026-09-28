@@ -99,6 +99,24 @@ describe("bundled packages", () => {
 });
 
 describe("diagnostics", () => {
+  test("normalizes a trusted OpenAgent Runtime binding", () => {
+    const root = makeTempDirectory();
+    writePackage(root, validManifest({ extensions: { openagent: { runtime: "goal" } } }));
+    const report = inspectPackage(root);
+    expect(report.runtime).toBe("goal");
+    expect(report.diagnostics).toEqual([]);
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  test("rejects an unknown OpenAgent Runtime binding", () => {
+    const root = makeTempDirectory();
+    writePackage(root, validManifest({ extensions: { openagent: { runtime: "unknown" } } }));
+    const report = inspectPackage(root);
+    expect(report.runtime).toBe(null);
+    expect(report.diagnostics[0].message).toContain("runtime binding");
+    rmSync(root, { recursive: true, force: true });
+  });
+
   test("a missing schema rejects the package", () => {
     const root = makeTempDirectory();
     writePackage(root, validManifest({ $schema: undefined }));

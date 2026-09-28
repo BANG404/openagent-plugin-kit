@@ -15,6 +15,16 @@ package is data those components reference by package-relative path.
 Read `docs/plugin-format.md` for the field-by-field reference before changing a
 manifest. Prefer `templates/` over writing a manifest from scratch.
 
+OpenAgent's product-owned standard packages are published at:
+
+- https://github.com/BANG404/openagent-chat-groups
+- https://github.com/BANG404/openagent-goal
+- https://github.com/BANG404/openagent-graph
+
+Use this repository's templates and validator as the source of truth for
+portable package structure. Contract changes must be mirrored in the OpenAgent
+Runtime and its owner Skills before a package release is published.
+
 ## Manifest skeleton
 
 ```json
@@ -101,6 +111,11 @@ skipped.
   `args`, `stdio` or `socket` transport, and capability names. The host
   validates containment and owns supervision; pair the daemon with a normal
   MCP client when the capability is model-facing.
+- Product-owned plugins may also declare `extensions.openagent.runtime` with
+  `chat-groups`, `goal`, `graph`, or `cua-driver`. This trusted binding lets
+  OpenAgent subscribe to the plugin's GitHub repository and apply verified
+  package releases while keeping durable state and permission checks in the
+  host. It is not a general capability escalation mechanism.
 - Declare `timeout_secs` between 1 and 300. A hook or command failure is isolated
   and reported; it never stops runtime finalization.
 
