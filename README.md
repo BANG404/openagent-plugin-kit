@@ -61,6 +61,7 @@ can be subscribed to directly from GitHub:
 - [Chat Groups](https://github.com/BANG404/openagent-chat-groups)
 - [Goal](https://github.com/BANG404/openagent-goal)
 - [Graph](https://github.com/BANG404/openagent-graph)
+- [Cua Driver](https://github.com/BANG404/openagent-cua-driver)
 
 Each package declares its matching `extensions.openagent.runtime` binding and
 publishes verified release archives for the host updater.

@@ -16,6 +16,7 @@ The product-owned packages use these independent GitHub subscriptions:
 - `chat-groups`: https://github.com/BANG404/openagent-chat-groups
 - `goal`: https://github.com/BANG404/openagent-goal
 - `graph`: https://github.com/BANG404/openagent-graph
+- `cua-driver`: https://github.com/BANG404/openagent-cua-driver
 
 Keep each package's `runtime` binding and repository URL aligned with its
 OpenAgent Runtime registration.

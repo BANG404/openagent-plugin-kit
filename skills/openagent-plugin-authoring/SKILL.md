@@ -20,6 +20,7 @@ OpenAgent's product-owned standard packages are published at:
 - https://github.com/BANG404/openagent-chat-groups
 - https://github.com/BANG404/openagent-goal
 - https://github.com/BANG404/openagent-graph
+- https://github.com/BANG404/openagent-cua-driver
 
 Use this repository's templates and validator as the source of truth for
 portable package structure. Contract changes must be mirrored in the OpenAgent
