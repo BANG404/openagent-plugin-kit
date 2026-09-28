@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Example panel</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font:
+          13px system-ui,
+          sans-serif;
+      }
+      body {
+        margin: 0;
+        padding: 16px;
+        color: CanvasText;
+        background: Canvas;
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: 14px;
+      }
+      dl {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 4px 12px;
+        margin: 12px 0 0;
+      }
+      dt {
+        opacity: 0.7;
+      }
+      dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+      }
+      #status {
+        margin: 0;
+        opacity: 0.7;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Example panel</h1>
+      <p id="status">Waiting for sidebar context.</p>
+      <dl>
+        <dt>Conversation</dt>
+        <dd id="conversation">-</dd>
+        <dt>Locale</dt>
+        <dd id="locale">-</dd>
+        <dt>Theme</dt>
+        <dd id="theme">-</dd>
+      </dl>
+    </main>
+    <script>
+      // The host posts this message after the frame loads and again whenever the
+      // declared context changes. It contains only the capabilities you listed.
+      addEventListener("message", (event) => {
+        const payload = event.data;
+        if (payload?.type !== "openagent:sidebar-context") return;
+        const text = (id, value) => {
+          document.querySelector(id).textContent = value ?? "-";
+        };
+        text("#status", `Scope: ${payload.scope ?? "unknown"}`);
+        text("#conversation", payload.conversation_id);
+        text("#locale", payload.locale);
+        text("#theme", payload.theme);
+      });
+    </script>
+  </body>
+</html>

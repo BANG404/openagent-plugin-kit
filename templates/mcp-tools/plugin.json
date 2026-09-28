@@ -1,0 +1,13 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "openagent-plugin-template-mcp-tools",
+  "version": "1.0.0",
+  "description": "Starter template with a dependency-free stdio MCP server and a Skill that explains it.",
+  "license": "MIT",
+  "keywords": ["openagent", "template", "mcp"],
+  "extensions": {
+    "openagent": {
+      "capabilities": ["skills", "mcp"]
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "openagent-plugin-template-sidebar-panel",
+  "version": "1.0.0",
+  "description": "Starter template with a sandboxed sidebar panel that reads the versioned host context.",
+  "license": "MIT",
+  "keywords": ["openagent", "template", "sidebar"],
+  "extensions": {
+    "openagent": {
+      "capabilities": ["sidebar"],
+      "sidebar": [
+        {
+          "id": "example-panel",
+          "title": "Example panel",
+          "entry": "ui/panel.html",
+          "scope": "conversation",
+          "icon": "panel",
+          "capabilities": ["conversation", "locale", "theme"]
+        }
+      ]
+    }
+  }
+}

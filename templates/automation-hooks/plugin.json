@@ -1,0 +1,29 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "openagent-plugin-template-automation-hooks",
+  "version": "1.0.0",
+  "description": "Starter template with a lifecycle hook that emits a user-visible plugin message.",
+  "license": "MIT",
+  "keywords": ["openagent", "template", "automation"],
+  "extensions": {
+    "openagent": {
+      "capabilities": ["automation"],
+      "message_policies": [
+        {
+          "tag": "notice",
+          "user_visible": true,
+          "model_visible": false
+        }
+      ],
+      "automation": [
+        {
+          "id": "after-tool",
+          "event": "after_tool",
+          "matcher": "^(apply_patch|exec_command)$",
+          "command": "hooks/after-tool.cmd",
+          "timeout_secs": 15
+        }
+      ]
+    }
+  }
+}

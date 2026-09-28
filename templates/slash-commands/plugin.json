@@ -1,0 +1,23 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "openagent-plugin-template-slash-commands",
+  "version": "1.0.0",
+  "description": "Starter template with a portable slash command backed by a package script.",
+  "license": "MIT",
+  "keywords": ["openagent", "template", "commands"],
+  "extensions": {
+    "openagent": {
+      "capabilities": ["commands"],
+      "commands": [
+        {
+          "id": "word-count",
+          "label": "Word count",
+          "description": "Count the words in the supplied text and report the longest one",
+          "argument": "required_text",
+          "command": "bin/word-count.cmd",
+          "timeout_secs": 15
+        }
+      ]
+    }
+  }
+}

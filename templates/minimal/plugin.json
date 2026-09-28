@@ -1,0 +1,13 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "openagent-plugin-template-minimal",
+  "version": "1.0.0",
+  "description": "Starter template with a single bundled Agent Skill.",
+  "license": "MIT",
+  "keywords": ["openagent", "template", "skills"],
+  "extensions": {
+    "openagent": {
+      "capabilities": ["skills"]
+    }
+  }
+}

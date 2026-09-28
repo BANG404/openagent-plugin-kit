@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Reference panel</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font:
+          13px system-ui,
+          sans-serif;
+      }
+      body {
+        margin: 0;
+        padding: 16px;
+        color: CanvasText;
+        background: Canvas;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 14px;
+      }
+      p {
+        margin: 4px 0;
+        overflow-wrap: anywhere;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Reference panel</h1>
+      <p id="scope">Waiting for sidebar context.</p>
+      <p id="workspace">-</p>
+      <p id="theme">-</p>
+    </main>
+    <script>
+      addEventListener("message", (event) => {
+        const payload = event.data;
+        if (payload?.type !== "openagent:sidebar-context") return;
+        document.querySelector("#scope").textContent = `Scope: ${payload.scope ?? "unknown"}`;
+        document.querySelector("#workspace").textContent = `Workspace: ${payload.workspace ?? "-"}`;
+        document.querySelector("#theme").textContent = `Theme: ${payload.theme ?? "-"}`;
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "openagent-plugin-kit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Agent skills, starter templates, scaffolding, and validation for OpenAgent Agent Plugins.",
+  "license": "MIT",
+  "scripts": {
+    "new": "bun scripts/new-plugin.mjs",
+    "validate": "bun scripts/validate-plugin.mjs",
+    "validate:all": "bun scripts/validate-plugin.mjs --all",
+    "test": "bun test"
+  },
+  "engines": {
+    "bun": ">=1.2.0"
+  }
+}
