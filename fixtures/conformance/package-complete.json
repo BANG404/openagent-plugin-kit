@@ -1,0 +1,45 @@
+{
+  "description": "every component kind the loader reads can coexist in one package",
+  "manifest": {
+    "version": "2.1.0",
+    "author": { "name": "Example", "url": "https://example.test" },
+    "homepage": "https://example.test/plugin",
+    "repository": "https://github.com/example/example-plugin",
+    "license": "MIT",
+    "keywords": ["mcp", "notes"]
+  },
+  "openagent": {
+    "capabilities": ["mcp", "commands"],
+    "commands": [
+      { "id": "note", "label": "Note", "description": "Record a note", "command": "bin/note.cmd" }
+    ],
+    "message_policies": [{ "tag": "notice", "user_visible": true, "model_visible": false }],
+    "sidebar": [{ "id": "panel", "title": "Panel", "entry": "ui/panel.html" }],
+    "automation": [{ "id": "after-tool", "event": "after_tool", "command": "hooks/after-tool.cmd" }],
+    "daemon": { "command": "bin/daemon.mjs", "args": ["serve"], "capabilities": ["files"] }
+  },
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": { "server": { "type": "stdio", "command": "node", "args": ["server.js"] } }
+  },
+  "files": {
+    "bin/note.cmd": "",
+    "bin/daemon.mjs": "process.exit(0);\n",
+    "hooks/after-tool.cmd": "",
+    "ui/panel.html": "<!doctype html>\n",
+    "skills/note-taking/SKILL.md": "---\nname: note-taking\ndescription: Use when the user asks to record a note.\n---\n\n# Note taking\n"
+  },
+  "expect": {
+    "valid": true,
+    "clean": true,
+    "components": {
+      "skills": 1,
+      "mcpServers": 1,
+      "commands": 1,
+      "sidebar": 1,
+      "automation": 1,
+      "messagePolicies": 1,
+      "daemon": 1
+    }
+  }
+}

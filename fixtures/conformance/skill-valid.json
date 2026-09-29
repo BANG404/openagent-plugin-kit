@@ -1,0 +1,10 @@
+{
+  "description": "a skill whose name matches its directory and carries a description loads",
+  "files": {
+    "skills/note-taking/SKILL.md": "---\nname: note-taking\ndescription: Use when the user asks to record a note.\nmetadata:\n  category: writing\n---\n\n# Note taking\n"
+  },
+  "expect": {
+    "valid": true,
+    "components": { "skills": 1 }
+  }
+}

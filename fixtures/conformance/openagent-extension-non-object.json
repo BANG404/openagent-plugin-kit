@@ -1,0 +1,8 @@
+{
+  "description": "a non-object OpenAgent extension would load the package with none of its components",
+  "openagent": "goal",
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "non-object extensions.openagent" }]
+  }
+}

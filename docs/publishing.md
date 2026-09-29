@@ -16,12 +16,20 @@ an update, so the URL is what makes updates discoverable.
 
 ## Versioning
 
-- `version` is a free-form string, but the update check compares numeric
-  components in order, so use `MAJOR.MINOR.PATCH`.
-- An update is offered when the latest stable release is newer than the
-  installed `version`.
-- Keep the update release stable and non-prerelease; a prerelease is not treated
-  as a stable candidate.
+- `version` is a free-form string and is never grounds for rejecting a package.
+  An update is offered when the latest release's version is newer than the
+  installed one.
+- When both versions parse as SemVer, precedence follows the specification: a
+  release outranks its own prerelease, prerelease identifiers compare
+  numerically and then by ASCII, and build metadata is ignored. `1.0.0` is
+  newer than `1.0.0-beta.1`, and `1.0.0+build.5` equals `1.0.0`.
+- Otherwise the comparison falls back to numeric components, so `2026.09`
+  compares as the number 2026.09 and `2.1` is newer than `1.9.3`. Use
+  `MAJOR.MINOR.PATCH` and let SemVer order releases rather than relying on
+  punctuation to sort above a lower number.
+- Keep the update release a stable GitHub release. OpenAgent reads the latest
+  stable release, so a release marked prerelease is never a candidate — which
+  is a separate decision from how its `version` string compares.
 
 ## Release assets
 

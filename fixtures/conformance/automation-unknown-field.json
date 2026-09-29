@@ -1,0 +1,24 @@
+{
+  "description": "the one component with no unknown-field check in the loader is still checked here",
+  "openagent": {
+    "automation": [
+      {
+        "id": "after-tool",
+        "event": "after_tool",
+        "command": "hooks/after-tool.cmd",
+        "when": "the tool failed"
+      }
+    ]
+  },
+  "files": { "hooks/after-tool.cmd": "" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      {
+        "level": "warning",
+        "contains": "unknown field 'when', which the loader does not read and would ignore"
+      }
+    ],
+    "components": { "automation": 0 }
+  }
+}

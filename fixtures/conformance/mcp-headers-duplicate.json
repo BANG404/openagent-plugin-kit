@@ -1,0 +1,18 @@
+{
+  "description": "two header names that differ only by case are one header to the loader",
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "remote": {
+        "type": "streamable-http",
+        "url": "https://example.test/mcp",
+        "headers": { "X-Token": "a", "x-token": "b" }
+      }
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "headers repeat 'x-token'" }],
+    "components": { "mcpServers": 0 }
+  }
+}

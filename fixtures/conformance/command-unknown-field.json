@@ -1,0 +1,20 @@
+{
+  "description": "an unknown command field is rejected because the loader would ignore it",
+  "openagent": {
+    "commands": [
+      {
+        "id": "note",
+        "label": "Note",
+        "description": "Record a note from the conversation",
+        "command": "bin/note.cmd",
+        "arguments": []
+      }
+    ]
+  },
+  "files": { "bin/note.cmd": "" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "unknown field 'arguments'" }],
+    "components": { "commands": 0 }
+  }
+}

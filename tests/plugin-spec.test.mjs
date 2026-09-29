@@ -125,12 +125,25 @@ describe("diagnostics", () => {
     rmSync(root, { recursive: true, force: true });
   });
 
-  test("an unknown manifest field is a warning", () => {
+  test("an unknown manifest field is carried for another host, not failed", () => {
+    // The format lets a package ship fields only another host reads, so the
+    // loader ignores them by design and the validator must not reject one.
     const root = makeTempDirectory();
     writePackage(root, validManifest({ future: true }));
     const report = inspectPackage(root);
     expect(report.diagnostics).toHaveLength(1);
+    expect(report.diagnostics[0].level).toBe("notice");
     expect(report.diagnostics[0].message).toContain("future");
+    expect(hasFailures(report)).toBe(false);
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  test("an unread field inside OpenAgent's own extension fails the package", () => {
+    const root = makeTempDirectory();
+    writePackage(root, validManifest({ extensions: { openagent: { capabilites: ["mcp"] } } }));
+    const report = inspectPackage(root);
+    expect(report.diagnostics[0].level).toBe("warning");
+    expect(report.diagnostics[0].message).toContain("capabilites");
     expect(hasFailures(report)).toBe(true);
     rmSync(root, { recursive: true, force: true });
   });

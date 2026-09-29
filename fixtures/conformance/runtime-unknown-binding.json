@@ -1,0 +1,13 @@
+{
+  "description": "a runtime binding outside the four the host implements is ignored",
+  "openagent": { "runtime": "telemetry" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      {
+        "level": "warning",
+        "contains": "runtime binding: expected one of chat-groups, goal, graph, cua-driver"
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "description": "a message policy addressed to nobody is skipped",
+  "openagent": {
+    "message_policies": [{ "tag": "notice", "user_visible": false, "model_visible": false }]
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "at least one audience must be true" }],
+    "components": { "messagePolicies": 0 }
+  }
+}

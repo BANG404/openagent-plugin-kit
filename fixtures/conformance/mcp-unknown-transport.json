@@ -1,0 +1,15 @@
+{
+  "description": "a transport outside the format disables only that server",
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "websocket": { "type": "websocket", "url": "wss://example.test/mcp" },
+      "modern": { "type": "stdio", "command": "node" }
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "unsupported transport 'websocket'" }],
+    "components": { "mcpServers": 1 }
+  }
+}

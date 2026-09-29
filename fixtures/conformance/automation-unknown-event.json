@@ -1,0 +1,14 @@
+{
+  "description": "an event the runtime does not emit is rejected",
+  "openagent": {
+    "automation": [
+      { "id": "after-merge", "event": "after_merge", "command": "hooks/after-merge.cmd" }
+    ]
+  },
+  "files": { "hooks/after-merge.cmd": "" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "unsupported event 'after_merge'" }],
+    "components": { "automation": 0 }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "description": "an argument mode outside the two the runtime implements is rejected",
+  "openagent": {
+    "commands": [
+      {
+        "id": "note",
+        "label": "Note",
+        "description": "Record a note from the conversation",
+        "argument": "optional_text",
+        "command": "bin/note.cmd"
+      }
+    ]
+  },
+  "files": { "bin/note.cmd": "" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      { "level": "warning", "contains": "argument must be 'none' or 'required_text'" }
+    ],
+    "components": { "commands": 0 }
+  }
+}

@@ -26,4 +26,6 @@ hosts; change `command` to the `.sh` path (and make the file executable with
 - stdout must be a non-empty prompt. An empty stdout or a non-zero exit means
   the command produced nothing.
 - `timeout_secs` is 1-300. The process runs through the normal OpenAgent process
-  boundary with the package root as its working directory.
+  boundary with the **active workspace** as its working directory, so relative
+  paths land in the user's project. It needs an active workspace; without one it
+  reports the missing workspace instead of running.

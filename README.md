@@ -75,7 +75,8 @@ templates/<name>/               starter packages, each with its own plugin.json
 scripts/new-plugin.mjs          copy a template and rewrite its identity
 scripts/validate-plugin.mjs     validate packages against the 1.0.0 contract
 scripts/lib/plugin-spec.mjs     shared rules and package inspection
-tests/                          Bun tests for the scripts
+fixtures/conformance/           one package per validator rule, run by the tests
+tests/                          Bun tests for the scripts and the corpus
 docs/plugin-format.md           field-by-field package reference
 docs/publishing.md              versioning, releases, and updates
 ```

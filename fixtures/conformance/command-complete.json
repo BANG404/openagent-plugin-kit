@@ -1,0 +1,28 @@
+{
+  "description": "a fully declared command keeps every field it named",
+  "openagent": {
+    "commands": [
+      {
+        "id": "word-count",
+        "label": "Count words",
+        "description": "Count the words of the typed text",
+        "argument": "required_text",
+        "command": "bin/word-count.cmd",
+        "timeout_secs": 120
+      }
+    ]
+  },
+  "files": { "bin/word-count.cmd": "" },
+  "expect": {
+    "valid": true,
+    "components": { "commands": 1 },
+    "commands": [
+      {
+        "id": "plugin:example-plugin:word-count",
+        "argument": "required_text",
+        "command": "bin/word-count.cmd",
+        "timeoutSecs": 120
+      }
+    ]
+  }
+}

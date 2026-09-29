@@ -1,0 +1,8 @@
+{
+  "description": "a capability list the loader cannot read is ignored, so it is reported",
+  "openagent": { "capabilities": "mcp" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "Ignored plugin capabilities: must be an array" }]
+  }
+}

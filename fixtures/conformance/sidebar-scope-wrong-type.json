@@ -1,0 +1,19 @@
+{
+  "description": "a non-string scope names the global scope the loader would have used instead",
+  "openagent": {
+    "sidebar": [
+      {
+        "id": "panel",
+        "title": "Panel",
+        "entry": "ui/panel.html",
+        "scope": true
+      }
+    ]
+  },
+  "files": { "ui/panel.html": "<!doctype html>\n" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "'scope' is boolean true" }],
+    "components": { "sidebar": 0 }
+  }
+}

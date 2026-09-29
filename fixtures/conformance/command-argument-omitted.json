@@ -1,0 +1,19 @@
+{
+  "description": "an omitted command argument is the documented default, not a rejection",
+  "openagent": {
+    "commands": [
+      {
+        "id": "note",
+        "label": "Note",
+        "description": "Record a note from the conversation",
+        "command": "bin/note.cmd"
+      }
+    ]
+  },
+  "files": { "bin/note.cmd": "" },
+  "expect": {
+    "valid": true,
+    "components": { "commands": 1 },
+    "commands": [{ "argument": "none", "timeoutSecs": 30 }]
+  }
+}

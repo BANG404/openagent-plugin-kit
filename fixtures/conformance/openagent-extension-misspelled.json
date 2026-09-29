@@ -1,0 +1,8 @@
+{
+  "description": "a key OpenAgent does not read inside its own namespace is a warning",
+  "openagent": { "capabilites": ["mcp"] },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "'capabilites' is not one the loader reads" }]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "description": "a schema this loader does not implement is an error",
+  "manifest": { "$schema": "https://example.test/schemas/2.0.0/plugin.schema.json" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "error", "contains": "unsupported Agent Plugins schema" }]
+  }
+}

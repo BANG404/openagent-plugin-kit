@@ -1,0 +1,20 @@
+{
+  "description": "a string timeout names the 30 seconds the loader would have substituted",
+  "openagent": {
+    "commands": [
+      {
+        "id": "note",
+        "label": "Note",
+        "description": "Record a note from the conversation",
+        "command": "bin/note.cmd",
+        "timeout_secs": "60"
+      }
+    ]
+  },
+  "files": { "bin/note.cmd": "" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "'timeout_secs' is string \"60\"" }],
+    "components": { "commands": 0 }
+  }
+}

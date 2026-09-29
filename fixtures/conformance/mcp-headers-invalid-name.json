@@ -1,0 +1,18 @@
+{
+  "description": "a header name outside the field-name grammar is rejected before it reaches a request",
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "remote": {
+        "type": "streamable-http",
+        "url": "https://example.test/mcp",
+        "headers": { "X Token": "a" }
+      }
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "headers contain an invalid name 'X Token'" }],
+    "components": { "mcpServers": 0 }
+  }
+}

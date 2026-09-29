@@ -1,0 +1,20 @@
+{
+  "description": "a non-string argument names the default the loader would have used instead",
+  "openagent": {
+    "commands": [
+      {
+        "id": "note",
+        "label": "Note",
+        "description": "Record a note from the conversation",
+        "argument": 5,
+        "command": "bin/note.cmd"
+      }
+    ]
+  },
+  "files": { "bin/note.cmd": "" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "'argument' is number 5" }],
+    "components": { "commands": 0 }
+  }
+}

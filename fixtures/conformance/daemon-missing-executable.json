@@ -1,0 +1,15 @@
+{
+  "description": "a daemon whose command is not in the package is disabled",
+  "openagent": {
+    "daemon": {
+      "command": "bin/absent.mjs",
+      "args": ["serve"],
+      "capabilities": ["files"]
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "is missing or outside the plugin root" }],
+    "components": { "daemon": 0 }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "description": "the legacy SSE transport disables only the server that declared it",
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "legacy": { "type": "sse", "url": "https://example.test/sse" },
+      "modern": { "type": "stdio", "command": "node" }
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "legacy SSE transport" }],
+    "components": { "mcpServers": 1 }
+  }
+}

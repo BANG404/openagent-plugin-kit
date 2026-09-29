@@ -1,0 +1,13 @@
+{
+  "description": "the OpenAI examples' http alias names the Streamable HTTP transport",
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "remote": { "type": "http", "url": "https://example.test/mcp" }
+    }
+  },
+  "expect": {
+    "valid": true,
+    "components": { "mcpServers": 1 }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "description": "plain HTTP to a remote host is rejected",
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "remote": { "type": "streamable-http", "url": "http://example.test/mcp" }
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "url must use HTTPS except for a loopback endpoint" }],
+    "components": { "mcpServers": 0 }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "description": "a message policy with one audience loads",
+  "openagent": {
+    "message_policies": [{ "tag": "notice", "user_visible": true, "model_visible": false }]
+  },
+  "expect": {
+    "valid": true,
+    "components": { "messagePolicies": 1 }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "description": "a directory under skills/ with no SKILL.md is what a half-finished rename looks like",
+  "files": { "skills/half-renamed/notes.md": "Moved, but the file was never renamed.\n" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "no SKILL.md in skills/half-renamed/" }],
+    "components": { "skills": 0 }
+  }
+}

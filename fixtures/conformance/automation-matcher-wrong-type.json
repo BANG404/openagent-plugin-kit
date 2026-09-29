@@ -1,0 +1,14 @@
+{
+  "description": "a numeric matcher names the unhooked behaviour the loader would have used",
+  "openagent": {
+    "automation": [
+      { "id": "after-tool", "event": "after_tool", "command": "hooks/after-tool.cmd", "matcher": 5 }
+    ]
+  },
+  "files": { "hooks/after-tool.cmd": "" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "'matcher' is number 5" }],
+    "components": { "automation": 0 }
+  }
+}

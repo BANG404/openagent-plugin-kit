@@ -1,0 +1,8 @@
+{
+  "description": "a typed manifest field the loader validates is an error when it is malformed",
+  "manifest": { "keywords": "mcp" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "error", "contains": "field 'keywords' must be an array" }]
+  }
+}

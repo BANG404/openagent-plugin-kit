@@ -1,0 +1,8 @@
+{
+  "description": "a manifest without $schema is not a portable package and is an error",
+  "omit": ["$schema"],
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "error", "contains": "missing required '$schema'" }]
+  }
+}

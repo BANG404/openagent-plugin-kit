@@ -1,0 +1,16 @@
+{
+  "description": "an omitted matcher and timeout are the documented defaults",
+  "openagent": {
+    "automation": [
+      { "id": "after-tool", "event": "after_tool", "command": "hooks/after-tool.cmd" }
+    ]
+  },
+  "files": { "hooks/after-tool.cmd": "" },
+  "expect": {
+    "valid": true,
+    "components": { "automation": 1 },
+    "automation": [
+      { "id": "plugin:example-plugin:after-tool", "event": "after_tool", "matcher": "", "timeoutSecs": 30 }
+    ]
+  }
+}

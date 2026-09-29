@@ -1,0 +1,17 @@
+{
+  "description": "a daemon that omits args is rejected because the loader requires them",
+  "openagent": {
+    "daemon": {
+      "command": "bin/daemon.mjs",
+      "capabilities": ["files"]
+    }
+  },
+  "files": { "bin/daemon.mjs": "process.exit(0);\n" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      { "level": "warning", "contains": "Disabled plugin daemon: expected command, string args/capabilities" }
+    ],
+    "components": { "daemon": 0 }
+  }
+}

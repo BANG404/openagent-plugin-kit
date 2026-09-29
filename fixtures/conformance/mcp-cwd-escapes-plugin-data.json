@@ -1,0 +1,19 @@
+{
+  "description": "a cwd that climbs out of PLUGIN_DATA is rejected statically",
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "server": {
+        "type": "stdio",
+        "command": "node",
+        "args": ["server.js"],
+        "cwd": "${PLUGIN_DATA}/../escape"
+      }
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "escapes PLUGIN_DATA" }],
+    "components": { "mcpServers": 0 }
+  }
+}

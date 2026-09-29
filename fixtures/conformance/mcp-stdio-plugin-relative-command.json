@@ -1,0 +1,19 @@
+{
+  "description": "a plugin-relative command is resolved inside the package, and a PLUGIN_ROOT cwd with it",
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "server": {
+        "type": "stdio",
+        "command": "./bin/server.js",
+        "args": ["--data", "${PLUGIN_DATA}"],
+        "cwd": "${PLUGIN_ROOT}/server"
+      }
+    }
+  },
+  "files": { "bin/server.js": "", "server/keep": "" },
+  "expect": {
+    "valid": true,
+    "components": { "mcpServers": 1 }
+  }
+}

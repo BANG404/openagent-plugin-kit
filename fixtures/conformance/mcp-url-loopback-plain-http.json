@@ -1,0 +1,13 @@
+{
+  "description": "plain HTTP is accepted for any 127.x address, not only 127.0.0.1",
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "local": { "type": "streamable-http", "url": "http://127.0.0.2:8080/mcp" }
+    }
+  },
+  "expect": {
+    "valid": true,
+    "components": { "mcpServers": 1 }
+  }
+}

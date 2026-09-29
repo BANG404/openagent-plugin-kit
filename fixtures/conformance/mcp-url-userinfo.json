@@ -1,0 +1,14 @@
+{
+  "description": "credentials in the URL are rejected because the loader refuses the endpoint",
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "remote": { "type": "streamable-http", "url": "https://user:secret@example.test/mcp" }
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "url must not contain user info or a fragment" }],
+    "components": { "mcpServers": 0 }
+  }
+}

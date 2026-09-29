@@ -1,0 +1,20 @@
+{
+  "description": "a command whose executable is not in the package is skipped",
+  "openagent": {
+    "commands": [
+      {
+        "id": "note",
+        "label": "Note",
+        "description": "Record a note from the conversation",
+        "command": "bin/absent.cmd"
+      }
+    ]
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      { "level": "warning", "contains": "executable is missing or outside the plugin root" }
+    ],
+    "components": { "commands": 0 }
+  }
+}

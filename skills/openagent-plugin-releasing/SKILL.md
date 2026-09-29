@@ -24,8 +24,10 @@ OpenAgent Runtime registration.
 ## Prepare the package
 
 1. Set `repository` to the published HTTPS GitHub URL.
-2. Bump `version` using `MAJOR.MINOR.PATCH`; the update check compares numeric
-   components in order.
+2. Bump `version` using `MAJOR.MINOR.PATCH`. The update check follows SemVer
+   precedence when both versions parse as SemVer, so a release outranks its own
+   prerelease and build metadata is ignored; a `version` that does not parse
+   falls back to comparing numeric components.
 3. Run `bun scripts/validate-plugin.mjs .` and fix every warning. A warning means
    a component will not load in a fresh install.
 4. Reinstall the package locally and exercise each component before tagging.

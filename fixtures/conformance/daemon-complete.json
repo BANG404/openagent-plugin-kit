@@ -1,0 +1,16 @@
+{
+  "description": "an omitted transport is the documented stdio default",
+  "openagent": {
+    "daemon": {
+      "command": "bin/daemon.mjs",
+      "args": ["serve"],
+      "capabilities": ["files"]
+    }
+  },
+  "files": { "bin/daemon.mjs": "process.exit(0);\n" },
+  "expect": {
+    "valid": true,
+    "components": { "daemon": 1 },
+    "daemon": { "command": "bin/daemon.mjs", "transport": "stdio", "capabilities": ["files"] }
+  }
+}

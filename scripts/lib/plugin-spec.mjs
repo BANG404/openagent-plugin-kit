@@ -12,6 +12,7 @@ import {
   realpathSync,
   statSync,
 } from "node:fs";
+import { isIP } from "node:net";
 import path from "node:path";
 
 export const PLUGIN_SCHEMA_1_0 =
@@ -317,13 +318,62 @@ function push(report, level, message) {
   report.diagnostics.push({ level, message });
 }
 
+/**
+ * Name a JSON value the way a manifest author would recognize it.
+ */
+function describeValue(value) {
+  if (value === null) return "null";
+  if (Array.isArray(value)) return "array";
+  return `${typeof value} ${JSON.stringify(value)}`;
+}
+
+/**
+ * Reject a value whose JSON type the loader will not read.
+ *
+ * This is where the validator is deliberately stricter than the loader, and in
+ * the only direction that helps. The loader reads these fields through
+ * `and_then(Value::as_str)` and its siblings, so a wrong-typed value is
+ * discarded and the entry loads with a default the author never wrote:
+ * `"matcher": 5` loads as an unhooked matcher, `"timeout_secs": "60"` loads as
+ * 30. Accepting that here would report on a package that does not exist. The
+ * message therefore names both the value and what the loader would have done
+ * with it, so the fix is obvious.
+ *
+ * An absent field is not this case. Where the format documents a default,
+ * omitting the field is how an author asks for it.
+ */
+function typeMismatch(field, value, loaderBehavior) {
+  return `'${field}' is ${describeValue(value)}, so the loader would ignore it and ${loaderBehavior}`;
+}
+
 function inspectExtensions(root, report, openagent) {
+  // `extensions.openagent` is OpenAgent's own namespace, so a key it does not
+  // define is a typo rather than another host's extension. The loader ignores
+  // it silently, which means a misspelled component key costs the author that
+  // whole component without a word anywhere.
+  const unread = unknownKeys(openagent, [
+    "runtime",
+    "capabilities",
+    "commands",
+    "message_policies",
+    "sidebar",
+    "automation",
+    "daemon",
+  ]);
+  for (const key of unread) {
+    push(
+      report,
+      "warning",
+      `extensions.openagent field '${key}' is not one the loader reads, so whatever it declares has no effect`,
+    );
+  }
+
   if (openagent.runtime !== undefined) {
     if (!["chat-groups", "goal", "graph", "cua-driver"].includes(openagent.runtime)) {
       push(
         report,
         "warning",
-        "Ignored plugin runtime binding: expected chat-groups, goal, graph, or cua-driver",
+        "Ignored plugin runtime binding: expected one of chat-groups, goal, graph, cua-driver",
       );
     } else {
       report.runtime = openagent.runtime;
@@ -341,9 +391,9 @@ function inspectExtensions(root, report, openagent) {
       push(report, "warning", "Disabled plugin commands: 'commands' must be an array");
     } else {
       openagent.commands.forEach((entry, index) => {
-        const reason = validateCommand(entry);
-        if (reason) {
-          push(report, "warning", `Skipped plugin command ${index}: ${reason}`);
+        const result = normalizeCommand(entry);
+        if (!result.ok) {
+          push(report, "warning", `Skipped plugin command ${index}: ${result.reason}`);
           return;
         }
         const id = entry.id;
@@ -352,9 +402,9 @@ function inspectExtensions(root, report, openagent) {
           name: `${report.name}:${id}`,
           label: entry.label,
           description: entry.description,
-          argument: entry.argument,
+          argument: result.value.argument,
           command: entry.command,
-          timeoutSecs: entry.timeout_secs ?? 30,
+          timeoutSecs: result.value.timeout,
         });
       });
     }
@@ -384,17 +434,20 @@ function inspectExtensions(root, report, openagent) {
     const unknown = isPlainObject(daemon)
       ? unknownKeys(daemon, ["command", "args", "transport", "capabilities"])
       : ["daemon"];
-    const args = isPlainObject(daemon) ? daemon.args ?? [] : [];
-    const capabilities = isPlainObject(daemon) ? daemon.capabilities ?? [] : [];
+    const args = isPlainObject(daemon) ? daemon.args : undefined;
+    const capabilities = isPlainObject(daemon) ? daemon.capabilities : undefined;
     const valid =
       isPlainObject(daemon) &&
       unknown.length === 0 &&
       isComponentPath(daemon.command) &&
+      // Both arrays are required rather than defaulted: the loader rejects a
+      // daemon declaration that omits either one, so a declaration accepted
+      // here has to name both.
       Array.isArray(args) &&
       args.every((value) => typeof value === "string") &&
-      ["stdio", "socket"].includes(daemon.transport ?? "stdio") &&
       Array.isArray(capabilities) &&
-      capabilities.every((value) => typeof value === "string");
+      capabilities.every((value) => typeof value === "string") &&
+      ["stdio", "socket"].includes(daemon.transport ?? "stdio");
     if (!valid) {
       push(
         report,
@@ -416,17 +469,17 @@ function inspectExtensions(root, report, openagent) {
       push(report, "warning", "Disabled sidebar: 'sidebar' must be an array");
     } else {
       openagent.sidebar.forEach((entry, index) => {
-        const reason = validateSidebar(entry);
-        if (reason) {
-          push(report, "warning", `Skipped sidebar view ${index}: ${reason}`);
+        const result = normalizeSidebar(entry);
+        if (!result.ok) {
+          push(report, "warning", `Skipped sidebar view ${index}: ${result.reason}`);
           return;
         }
         report.sidebar.push({
           id: `plugin:${report.name}:${entry.id}`,
           title: entry.title,
           entry: entry.entry,
-          scope: entry.scope ?? "global",
-          icon: entry.icon ?? null,
+          scope: result.value.scope,
+          icon: result.value.icon,
           capabilities: entry.capabilities ?? [],
         });
       });
@@ -438,17 +491,17 @@ function inspectExtensions(root, report, openagent) {
       push(report, "warning", "Disabled automation: 'automation' must be an array");
     } else {
       openagent.automation.forEach((entry, index) => {
-        const reason = validateAutomation(entry);
-        if (reason) {
-          push(report, "warning", `Skipped automation hook ${index}: ${reason}`);
+        const result = normalizeAutomation(entry);
+        if (!result.ok) {
+          push(report, "warning", `Skipped automation hook ${index}: ${result.reason}`);
           return;
         }
         report.automation.push({
           id: `plugin:${report.name}:${entry.id}`,
           event: entry.event,
-          matcher: entry.matcher ?? "",
+          matcher: result.value.matcher,
           command: entry.command,
-          timeoutSecs: entry.timeout_secs ?? 30,
+          timeoutSecs: result.value.timeout,
         });
       });
     }
@@ -491,8 +544,8 @@ function inspectExtensions(root, report, openagent) {
   }
 }
 
-function validateCommand(entry) {
-  if (!isPlainObject(entry)) return "entry must be an object";
+function normalizeCommand(entry) {
+  if (!isPlainObject(entry)) return { ok: false, reason: "entry must be an object" };
   const unknown = unknownKeys(entry, [
     "id",
     "label",
@@ -501,21 +554,36 @@ function validateCommand(entry) {
     "command",
     "timeout_secs",
   ]);
-  if (unknown.length > 0) return `unknown field '${unknown[0]}'`;
-  if (!isPluginName(entry.id)) return "id must be 1-64 lowercase letters, digits, or single hyphens";
-  if (typeof entry.label !== "string" || entry.label.trim() === "") return "label is required";
+  if (unknown.length > 0) return { ok: false, reason: `unknown field '${unknown[0]}'` };
+  if (!isPluginName(entry.id)) {
+    return { ok: false, reason: "id must be 1-64 lowercase letters, digits, or single hyphens" };
+  }
+  if (typeof entry.label !== "string" || entry.label.trim() === "") {
+    return { ok: false, reason: "label is required" };
+  }
   if (typeof entry.description !== "string" || entry.description.trim() === "") {
-    return "description is required";
+    return { ok: false, reason: "description is required" };
   }
-  if (!COMMAND_ARGUMENTS.includes(entry.argument)) {
-    return "argument must be 'none' or 'required_text'";
+  // `argument` has a documented default, so an omitted one is how an author
+  // asks for `none`. A different type is not.
+  const argument = entry.argument ?? "none";
+  if (typeof argument !== "string") {
+    return { ok: false, reason: typeMismatch("argument", argument, "use 'none'") };
   }
-  if (!isComponentPath(entry.command)) return "command must be a package-relative path";
+  if (!COMMAND_ARGUMENTS.includes(argument)) {
+    return { ok: false, reason: "argument must be 'none' or 'required_text'" };
+  }
+  if (!isComponentPath(entry.command)) {
+    return { ok: false, reason: "command must be a package-relative path" };
+  }
   const timeout = entry.timeout_secs ?? 30;
-  if (!Number.isInteger(timeout) || timeout < 1 || timeout > 300) {
-    return "timeout_secs must be an integer from 1 to 300";
+  if (typeof timeout !== "number") {
+    return { ok: false, reason: typeMismatch("timeout_secs", timeout, "use 30") };
   }
-  return null;
+  if (!(Number.isInteger(timeout) && timeout >= 1 && timeout <= 300)) {
+    return { ok: false, reason: "timeout_secs must be an integer from 1 to 300" };
+  }
+  return { ok: true, value: { argument, timeout } };
 }
 
 function validateMessagePolicy(entry) {
@@ -534,8 +602,8 @@ function validateMessagePolicy(entry) {
   return null;
 }
 
-function validateSidebar(entry) {
-  if (!isPlainObject(entry)) return "entry must be an object";
+function normalizeSidebar(entry) {
+  if (!isPlainObject(entry)) return { ok: false, reason: "entry must be an object" };
   const unknown = unknownKeys(entry, [
     "id",
     "title",
@@ -544,46 +612,77 @@ function validateSidebar(entry) {
     "icon",
     "capabilities",
   ]);
-  if (unknown.length > 0) return `unknown field '${unknown[0]}'`;
-  if (!isPluginName(entry.id)) return "id must be 1-64 lowercase letters, digits, or single hyphens";
-  if (typeof entry.title !== "string" || entry.title.trim() === "") return "title is required";
-  if (!isComponentPath(entry.entry)) return "entry must be a package-relative path";
+  if (unknown.length > 0) return { ok: false, reason: `unknown field '${unknown[0]}'` };
+  if (!isPluginName(entry.id)) {
+    return { ok: false, reason: "id must be 1-64 lowercase letters, digits, or single hyphens" };
+  }
+  if (typeof entry.title !== "string" || entry.title.trim() === "") {
+    return { ok: false, reason: "title is required" };
+  }
+  if (!isComponentPath(entry.entry)) {
+    return { ok: false, reason: "entry must be a package-relative path" };
+  }
   const scope = entry.scope ?? "global";
-  if (!SIDEBAR_SCOPES.includes(scope)) return `unsupported scope '${scope}'`;
-  if (entry.icon !== undefined && (typeof entry.icon !== "string" || entry.icon.trim() === "")) {
-    return "icon must be a non-empty string";
+  if (typeof scope !== "string") {
+    return { ok: false, reason: typeMismatch("scope", scope, "use 'global'") };
+  }
+  if (!SIDEBAR_SCOPES.includes(scope)) {
+    return { ok: false, reason: `unsupported scope '${scope}'` };
+  }
+  const icon = entry.icon ?? null;
+  if (icon !== null && typeof icon !== "string") {
+    return { ok: false, reason: typeMismatch("icon", icon, "draw the view without one") };
+  }
+  if (typeof icon === "string" && icon.trim() === "") {
+    return { ok: false, reason: "icon must be a non-empty string" };
   }
   if (entry.capabilities !== undefined) {
-    if (!Array.isArray(entry.capabilities)) return "capabilities must be an array";
+    if (!Array.isArray(entry.capabilities)) {
+      return { ok: false, reason: "capabilities must be an array" };
+    }
+    if (entry.capabilities.some((value) => typeof value !== "string")) {
+      return { ok: false, reason: "capabilities must contain only strings" };
+    }
     const invalid = entry.capabilities.find((value) => !SIDEBAR_CAPABILITIES.includes(value));
-    if (invalid !== undefined) return `unsupported capability '${invalid}'`;
+    if (invalid !== undefined) return { ok: false, reason: `unsupported capability '${invalid}'` };
   }
-  return null;
+  return { ok: true, value: { scope, icon } };
 }
 
-function validateAutomation(entry) {
-  if (!isPlainObject(entry)) return "entry must be an object";
-  const unknown = unknownKeys(entry, [
-    "id",
-    "event",
-    "matcher",
-    "command",
-    "timeout_secs",
-  ]);
-  if (unknown.length > 0) return `unknown field '${unknown[0]}'`;
-  if (!isPluginName(entry.id)) return "id must be 1-64 lowercase letters, digits, or single hyphens";
+function normalizeAutomation(entry) {
+  if (!isPlainObject(entry)) return { ok: false, reason: "entry must be an object" };
+  // The loader checks unknown fields on every component entry except this one,
+  // so a stray field here is the typo it is everywhere else. Rejecting it is
+  // stricter than the loader, which would ignore the field and load the hook
+  // without whatever the author meant by it.
+  const unknown = unknownKeys(entry, ["id", "event", "matcher", "command", "timeout_secs"]);
+  if (unknown.length > 0) {
+    return {
+      ok: false,
+      reason: `unknown field '${unknown[0]}', which the loader does not read and would ignore`,
+    };
+  }
+  if (!isPluginName(entry.id)) {
+    return { ok: false, reason: "id must be 1-64 lowercase letters, digits, or single hyphens" };
+  }
   if (!LIFECYCLE_EVENTS.includes(entry.event)) {
-    return `unsupported event '${entry.event ?? ""}'`;
+    return { ok: false, reason: `unsupported event '${entry.event ?? ""}'` };
   }
-  if (entry.matcher !== undefined && typeof entry.matcher !== "string") {
-    return "matcher must be a string";
+  const matcher = entry.matcher ?? "";
+  if (typeof matcher !== "string") {
+    return { ok: false, reason: typeMismatch("matcher", matcher, "match every tool") };
   }
-  if (!isComponentPath(entry.command)) return "command must be a package-relative path";
+  if (!isComponentPath(entry.command)) {
+    return { ok: false, reason: "command must be a package-relative path" };
+  }
   const timeout = entry.timeout_secs ?? 30;
-  if (!Number.isInteger(timeout) || timeout < 1 || timeout > 300) {
-    return "timeout_secs must be an integer from 1 to 300";
+  if (typeof timeout !== "number") {
+    return { ok: false, reason: typeMismatch("timeout_secs", timeout, "use 30") };
   }
-  return null;
+  if (!(Number.isInteger(timeout) && timeout >= 1 && timeout <= 300)) {
+    return { ok: false, reason: "timeout_secs must be an integer from 1 to 300" };
+  }
+  return { ok: true, value: { matcher, timeout } };
 }
 
 function skillViolation(dirName, data) {
@@ -639,7 +738,14 @@ function inspectSkills(root, report) {
     if (!stats.isDirectory()) continue;
     const skillFile = path.join(skillDirectory, SKILL_FILE);
     if (!existsSync(skillFile)) {
-      push(report, "notice", `Ignored '${directoryName}': no ${SKILL_FILE} in skills/${directoryName}/`);
+      // A directory under skills/ with no SKILL.md is silently not a skill,
+      // which is what a half-finished rename looks like. The loader records it
+      // as a warning, and so does this.
+      push(
+        report,
+        "warning",
+        `Skipped skill '${directoryName}': no ${SKILL_FILE} in skills/${directoryName}/`,
+      );
       continue;
     }
     const contained = resolveContainedFile(root, path.relative(root, skillFile));
@@ -673,6 +779,26 @@ function inspectSkills(root, report) {
     });
   }
   report.skills.sort((left, right) => left.name.localeCompare(right.name));
+}
+
+/** An HTTP field name, as the header-name grammar defines a token. */
+const HEADER_NAME_PATTERN = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+/**
+ * The bytes a field value may not contain: everything in the control range
+ * except tab, and DEL. The loader hands each pair to the HTTP crate's own
+ * parser, which allows tab, every printable ASCII byte, and every byte above
+ * the ASCII range, so this is the exact complement rather than a narrowing.
+ */
+const HEADER_VALUE_INVALID_PATTERN = /[\x00-\x08\x0a-\x1f\x7f]/;
+
+/** Whether a URL host is a loopback address or `localhost`. */
+function isLoopbackHost(hostname) {
+  const name = hostname.replace(/^\[|\]$/g, "");
+  if (name.toLowerCase() === "localhost") return true;
+  const family = isIP(name);
+  if (family === 4) return name.split(".")[0] === "127";
+  if (family === 6) return name === "::1";
+  return false;
 }
 
 function validateMcpServer(root, value) {
@@ -721,15 +847,33 @@ function validateMcpServer(root, value) {
           const target = resolveContainedDirectory(root, relative);
           if (!target.ok) return `cwd ${target.reason}`;
         }
-      } else if (cwd !== "${PLUGIN_DATA}" && !cwd.startsWith("${PLUGIN_DATA}/")) {
+      } else if (cwd === "${PLUGIN_DATA}" || cwd.startsWith("${PLUGIN_DATA}/")) {
+        // The loader creates this directory, so it need not exist yet and
+        // cannot be resolved here. It can still be resolved afterwards, and
+        // then has to stay inside the data root, so a static check rejects the
+        // relative escapes that would leave it.
+        const relative = cwd.slice("${PLUGIN_DATA}".length).replace(/^[\\/]/, "");
+        if (relative !== "" && !isComponentPath(relative)) {
+          return `cwd '${cwd}' escapes PLUGIN_DATA`;
+        }
+      } else {
         return "cwd must start with './', '${PLUGIN_ROOT}', or '${PLUGIN_DATA}'";
       }
     }
     return null;
   }
 
-  if (type === "streamable-http") {
-    const unknown = unknownKeys(value, ["type", "url", "headers"]);
+  // `http` is the OpenAI examples' alias for the Streamable HTTP transport.
+  if (type === "streamable-http" || type === "http") {
+    const unknown = unknownKeys(value, [
+      "type",
+      "url",
+      "headers",
+      "oauth_resource",
+      "oauth_authorization_server",
+      "oauth_client_id",
+      "oauth_scope",
+    ]);
     if (unknown.length > 0) return `streamable-http entry contains unknown field '${unknown[0]}'`;
     if (typeof value.url !== "string") {
       return "streamable-http entry is missing string field 'url'";
@@ -740,13 +884,30 @@ function validateMcpServer(root, value) {
     } catch {
       return "url must be an absolute URL";
     }
-    const loopback = ["localhost", "127.0.0.1", "[::1]", "::1"].includes(parsed.hostname);
-    if (parsed.protocol !== "https:" && !(parsed.protocol === "http:" && loopback)) {
-      return "url must use HTTPS except for literal loopback endpoints";
+    if (parsed.username !== "" || parsed.password !== "" || parsed.hash !== "") {
+      return "url must not contain user info or a fragment";
+    }
+    if (parsed.protocol !== "https:" && !(parsed.protocol === "http:" && isLoopbackHost(parsed.hostname))) {
+      return "url must use HTTPS except for a loopback endpoint";
     }
     if (value.headers !== undefined) {
       if (!isPlainObject(value.headers) || Object.values(value.headers).some((item) => typeof item !== "string")) {
         return "headers must be an object of strings";
+      }
+      const seen = new Set();
+      for (const [name, header] of Object.entries(value.headers)) {
+        const lower = name.toLowerCase();
+        if (seen.has(lower)) return `headers repeat '${name}'`;
+        seen.add(lower);
+        if (!HEADER_NAME_PATTERN.test(name)) return `headers contain an invalid name '${name}'`;
+        if (HEADER_VALUE_INVALID_PATTERN.test(header)) {
+          return `headers contain an invalid value for '${name}'`;
+        }
+      }
+    }
+    for (const key of ["oauth_resource", "oauth_authorization_server", "oauth_client_id", "oauth_scope"]) {
+      if (value[key] !== undefined && typeof value[key] !== "string") {
+        return `${key} must be a string`;
       }
     }
     return null;
@@ -816,7 +977,16 @@ function inspectManifest(root, report) {
     return false;
   }
   if (typeof value.$schema !== "string") {
-    push(report, "error", "plugin.json is missing required '$schema'");
+    // The loader also accepts a root manifest with no `$schema`, reading it as
+    // an OpenAI compatibility package with a different field set and a
+    // different MCP file. Validating that shape is out of this kit's scope, and
+    // guessing which format a manifest meant would validate the wrong rules,
+    // so the kit asks for the line that makes a package portable.
+    push(
+      report,
+      "error",
+      "plugin.json is missing required '$schema'; without it the package is not a portable Agent Plugins 1.0.0 package, and the OpenAI compatibility layout it would be read as is outside this kit's rules",
+    );
     return false;
   }
   if (value.$schema !== PLUGIN_SCHEMA_1_0) {
@@ -864,8 +1034,15 @@ function inspectManifest(root, report) {
     }
   }
 
+  // The format lets a package carry fields meant for another host, and the
+  // loader ignores them by design, so this is the one unknown-field report
+  // that is not a failure.
   for (const key of unknownKeys(value, MANIFEST_FIELDS)) {
-    push(report, "warning", `Ignored unknown plugin.json field '${key}'`);
+    push(
+      report,
+      "notice",
+      `plugin.json field '${key}' is not part of the portable format, so it is carried for other hosts and has no effect here`,
+    );
   }
   if (value.extensions === undefined) return true;
   if (!isPlainObject(value.extensions)) {
@@ -874,7 +1051,15 @@ function inspectManifest(root, report) {
   }
   if (value.extensions.openagent === undefined) return true;
   if (!isPlainObject(value.extensions.openagent)) {
-    push(report, "warning", "Ignored non-object extensions.openagent");
+    // The loader drops a non-object extension without a diagnostic, so the
+    // package loads with none of the components the author wrote. That is the
+    // case this validator exists to catch, so it is a failure rather than a
+    // note.
+    push(
+      report,
+      "warning",
+      "Ignored non-object extensions.openagent, which would load the package with none of its components",
+    );
     return true;
   }
   inspectExtensions(root, report, value.extensions.openagent);

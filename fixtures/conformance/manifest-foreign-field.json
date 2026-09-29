@@ -1,0 +1,9 @@
+{
+  "description": "a field meant for another host is carried as a notice, not a failure",
+  "manifest": { "future": true },
+  "expect": {
+    "valid": true,
+    "diagnosticCounts": { "notice": 1 },
+    "diagnostics": [{ "level": "notice", "contains": "'future'" }]
+  }
+}

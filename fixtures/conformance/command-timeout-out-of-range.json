@@ -1,0 +1,22 @@
+{
+  "description": "a timeout below the documented floor is rejected",
+  "openagent": {
+    "commands": [
+      {
+        "id": "note",
+        "label": "Note",
+        "description": "Record a note from the conversation",
+        "command": "bin/note.cmd",
+        "timeout_secs": 0
+      }
+    ]
+  },
+  "files": { "bin/note.cmd": "" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      { "level": "warning", "contains": "timeout_secs must be an integer from 1 to 300" }
+    ],
+    "components": { "commands": 0 }
+  }
+}

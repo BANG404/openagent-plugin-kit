@@ -1,0 +1,19 @@
+{
+  "description": "an omitted scope and icon are the documented defaults, not rejections",
+  "openagent": {
+    "sidebar": [
+      {
+        "id": "panel",
+        "title": "Panel",
+        "entry": "ui/panel.html",
+        "capabilities": ["workspace", "theme"]
+      }
+    ]
+  },
+  "files": { "ui/panel.html": "<!doctype html>\n" },
+  "expect": {
+    "valid": true,
+    "components": { "sidebar": 1 },
+    "sidebar": [{ "scope": "global", "icon": null, "capabilities": ["workspace", "theme"] }]
+  }
+}

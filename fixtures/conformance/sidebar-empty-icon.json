@@ -1,0 +1,19 @@
+{
+  "description": "an empty icon is a mistake rather than a request for no icon",
+  "openagent": {
+    "sidebar": [
+      {
+        "id": "panel",
+        "title": "Panel",
+        "entry": "ui/panel.html",
+        "icon": ""
+      }
+    ]
+  },
+  "files": { "ui/panel.html": "<!doctype html>\n" },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "icon must be a non-empty string" }],
+    "components": { "sidebar": 0 }
+  }
+}

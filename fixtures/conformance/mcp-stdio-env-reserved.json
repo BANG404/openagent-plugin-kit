@@ -1,0 +1,19 @@
+{
+  "description": "an env entry may not override the root the loader injects",
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "server": {
+        "type": "stdio",
+        "command": "node",
+        "args": ["server.js"],
+        "env": { "PLUGIN_DATA": "D:\\elsewhere" }
+      }
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [{ "level": "warning", "contains": "env must not override PLUGIN_DATA" }],
+    "components": { "mcpServers": 0 }
+  }
+}

@@ -109,9 +109,10 @@ skipped.
   an undeclared tag is dropped. Plain text output is model context only.
 - A long-lived capability process can be declared with
   `extensions.openagent.daemon`. Use a package-relative `command`, string
-  `args`, `stdio` or `socket` transport, and capability names. The host
-  validates containment and owns supervision; pair the daemon with a normal
-  MCP client when the capability is model-facing.
+  `args`, a `capabilities` array, and `stdio` or `socket` transport. `args` and
+  `capabilities` are required even when empty: the loader rejects a declaration
+  that omits either one. The host validates containment and owns supervision;
+  pair the daemon with a normal MCP client when the capability is model-facing.
 - Product-owned plugins may also declare `extensions.openagent.runtime` with
   `chat-groups`, `goal`, `graph`, or `cua-driver`. This trusted binding lets
   OpenAgent subscribe to the plugin's GitHub repository and apply verified
@@ -123,10 +124,14 @@ skipped.
 ## State and portability
 
 Write state only under `PLUGIN_DATA`, which survives uninstall and reinstall.
-Package containment stops path escapes from the package root but is not a
-subprocess sandbox, so keep credentials in user configuration rather than in the
-package. Use `./hooks/*.cmd` for Windows and `./hooks/*.sh` for POSIX hosts, and
-point the manifest at the one that matches your target; a plugin executes a
+Every process you declare runs under the policy the Runtime resolves from the
+user's session profile, inherited and never widened, with the plugin's own
+`PLUGIN_DATA` as the one added write grant. There is no permission field in the
+format and no per-plugin permission setting, so declaring a capability never
+grants it: keep credentials in user configuration rather than in the package,
+and expect the host's own credential variables to be stripped from your child
+environment. Use `./hooks/*.cmd` for Windows and `./hooks/*.sh` for POSIX hosts,
+and point the manifest at the one that matches your target; a plugin executes a
 single declared path.
 
 ## Verify before installing
@@ -136,5 +141,11 @@ bun scripts/validate-plugin.mjs <package-dir>
 ```
 
 The validator mirrors the loader rules and fails on warnings, because a warning
-means a component silently did not load. After it passes, install the directory
-through Settings -> Plugins -> Install and exercise every component.
+means a component silently did not load. It is deliberately stricter in one
+direction: a declaration the loader would silently substitute — a wrong-typed
+`timeout_secs` or `matcher`, a key OpenAgent does not read inside its own
+extension, a stray automation field — is reported instead of accepted, because
+such a package does not do what it reads as. `fixtures/conformance/` in the kit
+pins each of those rules with one package per case. After the validator passes,
+install the directory through Settings -> Plugins -> Install and exercise every
+component.

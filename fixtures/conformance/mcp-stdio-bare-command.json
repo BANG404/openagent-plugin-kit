@@ -1,0 +1,13 @@
+{
+  "description": "a bare executable token is resolved from PATH rather than the package",
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "server": { "type": "stdio", "command": "node", "args": ["--version"] }
+    }
+  },
+  "expect": {
+    "valid": true,
+    "components": { "mcpServers": 1 }
+  }
+}
