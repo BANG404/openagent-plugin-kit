@@ -1,0 +1,19 @@
+{
+  "description": "the shape of a Runtime-bound product package: identity, a Skill, and no message policies",
+  "manifest": {
+    "name": "goal",
+    "version": "1.0.1",
+    "description": "Persistent goal execution through OpenAgent checkpoints.",
+    "license": "MIT",
+    "repository": "https://github.com/BANG404/openagent-goal"
+  },
+  "openagent": { "runtime": "goal", "capabilities": ["command", "checkpoint"] },
+  "files": {
+    "skills/goal/SKILL.md": "---\nname: goal\ndescription: Use OpenAgent Goal Mode when a task needs durable objectives.\n---\n\n# Goal Mode\n"
+  },
+  "expect": {
+    "valid": true,
+    "clean": true,
+    "components": { "skills": 1, "messagePolicies": 0, "daemon": 0 }
+  }
+}

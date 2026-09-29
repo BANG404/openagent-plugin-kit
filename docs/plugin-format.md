@@ -157,7 +157,16 @@ ignores it without a word, so check the spelling of anything you declare here.
 
 A free-form string array used for display and admission. List the components you
 actually ship, for example
-`["skills", "mcp", "commands", "sidebar", "automation"]`.
+`["skills", "mcp", "commands", "sidebar", "automation"]`. `network` is the one
+token the Runtime reads: declaring it while the session profile restricts
+network access adds a diagnostic naming your plugin instead of failing at the
+first socket.
+
+A package that declares a `runtime` binding is merged into the Runtime's own
+registration for that capability, and the installed card carries the union of
+what the Runtime owns and what the package ships. Restating a product token is
+harmless — the union is a set — but the registration already names it, so
+listing the components you ship says more.
 
 ### `commands`
 
@@ -208,6 +217,14 @@ automation command that prints `{"message": "...", "tag": "notice"}` gets that
 policy applied; an undeclared tag is rejected and the message is dropped. Plain
 text output keeps the default model-context behavior and is not persisted as a
 plugin message.
+
+Declare a policy for the tags your own automation prints, and nothing else. A
+package that declares a `runtime` binding shares its card with the Runtime's
+registration, and the Runtime applies its own audience table to the checkpoint
+messages it emits — a policy you declare for one of those tags is namespaced to
+your package and can only ever apply to a message your own automation prints.
+Restating a Runtime tag therefore adds a second entry to the card's policy count
+without changing what any message does.
 
 ### `daemon`
 
