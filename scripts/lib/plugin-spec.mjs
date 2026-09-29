@@ -46,6 +46,9 @@ export const SIDEBAR_SCOPES = ["global", "workspace", "conversation"];
 
 export const COMMAND_ARGUMENTS = ["none", "required_text"];
 
+/** The loader's cap on a flow's autonomous turns. */
+export const MAX_FLOW_ITERATIONS = 100;
+
 export const LIFECYCLE_EVENTS = [
   "session_start",
   "session_end",
@@ -355,6 +358,7 @@ function inspectExtensions(root, report, openagent) {
     "runtime",
     "capabilities",
     "commands",
+    "flows",
     "message_policies",
     "sidebar",
     "automation",
@@ -405,6 +409,30 @@ function inspectExtensions(root, report, openagent) {
           argument: result.value.argument,
           command: entry.command,
           timeoutSecs: result.value.timeout,
+        });
+      });
+    }
+  }
+
+  if (openagent.flows !== undefined) {
+    if (!Array.isArray(openagent.flows)) {
+      push(report, "warning", "Disabled plugin flows: 'flows' must be an array");
+    } else {
+      openagent.flows.forEach((entry, index) => {
+        const result = normalizeFlow(entry);
+        if (!result.ok) {
+          push(report, "warning", `Skipped plugin flow ${index}: ${result.reason}`);
+          return;
+        }
+        report.flows.push({
+          id: `plugin:${report.name}:${entry.id}`,
+          name: `${report.name}:${entry.id}`,
+          label: entry.label,
+          description: entry.description,
+          argument: result.value.argument,
+          step: entry.step,
+          timeoutSecs: result.value.timeout,
+          maxIterations: result.value.maxIterations,
         });
       });
     }
@@ -516,6 +544,15 @@ function inspectExtensions(root, report, openagent) {
     );
     return false;
   });
+  report.flows = report.flows.filter((flow) => {
+    if (resolveContainedFile(root, flow.step).ok) return true;
+    push(
+      report,
+      "warning",
+      `Skipped plugin flow '${flow.name}': step is missing or outside the plugin root`,
+    );
+    return false;
+  });
   report.sidebar = report.sidebar.filter((view) => {
     if (resolveContainedFile(root, view.entry).ok) return true;
     push(
@@ -584,6 +621,72 @@ function normalizeCommand(entry) {
     return { ok: false, reason: "timeout_secs must be an integer from 1 to 300" };
   }
   return { ok: true, value: { argument, timeout } };
+}
+
+/**
+ * Normalize one `extensions.openagent.flows` entry.
+ *
+ * A flow mirrors a command — same id, label, description, argument, and
+ * timeout rules — and adds the step it runs and the iteration cap the Runtime
+ * applies to the loop that step drives.
+ */
+function normalizeFlow(entry) {
+  if (!isPlainObject(entry)) return { ok: false, reason: "entry must be an object" };
+  const unknown = unknownKeys(entry, [
+    "id",
+    "label",
+    "description",
+    "argument",
+    "step",
+    "timeout_secs",
+    "max_iterations",
+  ]);
+  if (unknown.length > 0) return { ok: false, reason: `unknown field '${unknown[0]}'` };
+  if (!isPluginName(entry.id)) {
+    return { ok: false, reason: "id must be 1-64 lowercase letters, digits, or single hyphens" };
+  }
+  if (typeof entry.label !== "string" || entry.label.trim() === "") {
+    return { ok: false, reason: "label is required" };
+  }
+  if (typeof entry.description !== "string" || entry.description.trim() === "") {
+    return { ok: false, reason: "description is required" };
+  }
+  // `argument` has a documented default, so an omitted one is how an author
+  // asks for `none`. A different type is not.
+  const argument = entry.argument ?? "none";
+  if (typeof argument !== "string") {
+    return { ok: false, reason: typeMismatch("argument", argument, "use 'none'") };
+  }
+  if (!COMMAND_ARGUMENTS.includes(argument)) {
+    return { ok: false, reason: "argument must be 'none' or 'required_text'" };
+  }
+  if (!isComponentPath(entry.step)) {
+    return { ok: false, reason: "step must be a package-relative path" };
+  }
+  const timeout = entry.timeout_secs ?? 60;
+  if (typeof timeout !== "number") {
+    return { ok: false, reason: typeMismatch("timeout_secs", timeout, "use 60") };
+  }
+  if (!(Number.isInteger(timeout) && timeout >= 1 && timeout <= 300)) {
+    return { ok: false, reason: "timeout_secs must be an integer from 1 to 300" };
+  }
+  const maxIterations = entry.max_iterations ?? MAX_FLOW_ITERATIONS;
+  if (typeof maxIterations !== "number") {
+    return {
+      ok: false,
+      reason: typeMismatch("max_iterations", maxIterations, `use ${MAX_FLOW_ITERATIONS}`),
+    };
+  }
+  if (
+    !(
+      Number.isInteger(maxIterations) &&
+      maxIterations >= 1 &&
+      maxIterations <= MAX_FLOW_ITERATIONS
+    )
+  ) {
+    return { ok: false, reason: `max_iterations must be an integer from 1 to ${MAX_FLOW_ITERATIONS}` };
+  }
+  return { ok: true, value: { argument, timeout, maxIterations } };
 }
 
 function validateMessagePolicy(entry) {
@@ -1081,6 +1184,7 @@ export function inspectPackage(packageDir) {
     skills: [],
     mcpServers: [],
     commands: [],
+    flows: [],
     sidebar: [],
     automation: [],
     messagePolicies: [],
@@ -1124,6 +1228,7 @@ function describeComponents(report) {
     `${report.skills.length} skill(s)`,
     `${report.mcpServers.length} MCP server(s)`,
     `${report.commands.length} command(s)`,
+    `${report.flows.length} flow(s)`,
     `${report.sidebar.length} sidebar view(s)`,
     `${report.automation.length} hook(s)`,
     `${report.messagePolicies.length} message policy(ies)`,

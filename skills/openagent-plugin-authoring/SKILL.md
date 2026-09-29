@@ -1,6 +1,6 @@
 ---
 name: openagent-plugin-authoring
-description: Use when creating or changing an OpenAgent Agent Plugin package, including plugin.json fields, package containment, bundled Agent Skills, mcp.json stdio or streamable-http servers, slash commands, sidebar views, automation hooks, message policies, and PLUGIN_DATA state. Covers the Agent Plugins 1.0.0 rules the OpenAgent loader enforces and the diagnostics it reports when a component is skipped.
+description: Use when creating or changing an OpenAgent Agent Plugin package, including plugin.json fields, package containment, bundled Agent Skills, mcp.json stdio or streamable-http servers, slash commands, autonomous flows, sidebar views, automation hooks, message policies, and PLUGIN_DATA state. Covers the Agent Plugins 1.0.0 rules the OpenAgent loader enforces and the diagnostics it reports when a component is skipped.
 metadata:
   category: integrations
 ---
@@ -96,11 +96,16 @@ Never override `PLUGIN_ROOT` or `PLUGIN_DATA` in `env`. `streamable-http`
 requires HTTPS except for literal loopback endpoints; `sse` is reported and
 skipped.
 
-## Commands, sidebar, and automation
+## Commands, flows, sidebar, and automation
 
 - Commands are exposed as `/<plugin-name>:<command-id>`. The executable receives
   a JSON request on stdin with `conversation_id`, `plugin_id`, `command`,
   `argument`, and `input`, and must print a non-empty prompt on stdout.
+- Flows are autonomous loops exposed the same way. Declare `step`, plus optional
+  `timeout_secs` and `max_iterations`; the step answers each iteration with the
+  next turn's `prompt` and a `done` flag, and owns its own state and completion
+  rule. Build one only when a single command's prompt cannot carry the work
+  across turn boundaries.
 - Sidebar views run as sandboxed HTML and receive only the context fields listed
   in their `capabilities`. Never expect transcript text, model output, file
   contents, or another plugin's state.
@@ -130,9 +135,10 @@ user's session profile, inherited and never widened, with the plugin's own
 format and no per-plugin permission setting, so declaring a capability never
 grants it: keep credentials in user configuration rather than in the package,
 and expect the host's own credential variables to be stripped from your child
-environment. Use `./hooks/*.cmd` for Windows and `./hooks/*.sh` for POSIX hosts,
-and point the manifest at the one that matches your target; a plugin executes a
-single declared path.
+environment. Prefer a `.mjs` or `.js` entry point: OpenAgent runs a declared
+path ending in either extension under the session's `node`, so one file works on
+every platform, while any other path is executed as the program itself and needs
+a shim per platform.
 
 ## Verify before installing
 

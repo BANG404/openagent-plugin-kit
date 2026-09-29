@@ -1,0 +1,20 @@
+{
+  "description": "an omitted flow timeout and iteration cap take the loader's defaults",
+  "openagent": {
+    "flows": [
+      {
+        "id": "loop",
+        "label": "Loop",
+        "description": "Runs with the documented defaults",
+        "argument": "none",
+        "step": "bin/loop.mjs"
+      }
+    ]
+  },
+  "files": { "bin/loop.mjs": "" },
+  "expect": {
+    "valid": true,
+    "components": { "flows": 1 },
+    "flows": [{ "argument": "none", "timeoutSecs": 60, "maxIterations": 100 }]
+  }
+}

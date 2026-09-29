@@ -1,0 +1,31 @@
+{
+  "description": "a fully declared flow keeps its step and its loop limits",
+  "openagent": {
+    "flows": [
+      {
+        "id": "goal",
+        "label": "Goal",
+        "description": "Work an objective to completion",
+        "argument": "required_text",
+        "step": "bin/goal-step.mjs",
+        "timeout_secs": 90,
+        "max_iterations": 12
+      }
+    ]
+  },
+  "files": { "bin/goal-step.mjs": "" },
+  "expect": {
+    "valid": true,
+    "components": { "flows": 1 },
+    "flows": [
+      {
+        "id": "plugin:example-plugin:goal",
+        "name": "example-plugin:goal",
+        "argument": "required_text",
+        "step": "bin/goal-step.mjs",
+        "timeoutSecs": 90,
+        "maxIterations": 12
+      }
+    ]
+  }
+}
