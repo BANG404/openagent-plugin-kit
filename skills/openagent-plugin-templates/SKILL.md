@@ -22,7 +22,10 @@ package, not a fragment: copy it, rename the identity, and install it.
 | `automation-hooks` | To react to lifecycle events and emit a message |
 | `full-kit` | A reference containing every component together |
 
-Start from the smallest template that covers the goal. Adding a component later
+Start from the smallest template that covers the goal. For a daemon that needs
+the interactive desktop, add `desktop-control` to the manifest capabilities;
+that requests user authorization and never grants ambient access by itself.
+Adding a component later
 is one manifest key plus one file.
 
 ## Scaffold

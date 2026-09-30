@@ -288,11 +288,12 @@ a daemon as a capability you are announcing rather than one already running.
 Confinement applies the way it does to your MCP servers and commands. An
 ordinary daemon runs under the session's resolved policy, and a host that
 starts one consumes that decision instead of deciding for itself whether to
-confine the process. The reserved product identity `cua-driver` is the one
-recorded exemption, because it drives the desktop and a confined process
-cannot; the host refuses to start a driver whose resolved policy is managed
-rather than running it unconfined. There is no `daemon` field by which a
-package can ask for that exemption.
+confine the process. A package may declare `desktop-control`, `host-access`, or
+`computer-use` when it needs the real computer environment. Those capabilities
+are requests only: the user must explicitly grant real computer access to that
+plugin in OpenAgent settings. Without the grant, the daemon remains confined or
+fails closed. There is no plugin identity or daemon field that bypasses this
+authorization.
 
 The host owns the daemon's lifetime, not the package. It selects the endpoint,
 decides whether to start a daemon or adopt one already listening there, and
@@ -370,7 +371,9 @@ never widened: host-root read, the active workspace's write access, and the
 session's network tier are exactly what the user already granted to ordinary
 agent commands, and the only addition is a write grant on that plugin's own
 `PLUGIN_DATA`. There is no per-plugin permission setting and no permission
-field in the format, so a package cannot grant itself anything by declaring it.
+field that grants access, so a package cannot grant itself anything by declaring
+a capability. The host may persist a per-plugin real-computer-access
+authorization separately from the portable manifest.
 
 Four consequences shape how you write a plugin:
 
@@ -410,8 +413,8 @@ one-time sandbox setup, and **a plugin process never raises an elevation
 prompt**. When that setup has not run, the start fails closed with a diagnostic
 naming your plugin and telling the user to provision from an ordinary agent
 command, which is the path allowed to ask for elevation. A package that needs
-desktop control is the recorded exception, the reserved Cua Driver identity
-described above; a third-party package cannot claim it.
+desktop control must request a host-access capability and wait for the user's
+per-plugin authorization; Cua Driver and third-party packages use the same path.
 
 That Windows gate is honest about its own limit: it asks the sandbox crate's
 own readiness predicate, which compares a setup version and the stored accounts

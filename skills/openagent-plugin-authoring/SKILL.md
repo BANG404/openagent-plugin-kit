@@ -131,9 +131,10 @@ skipped.
 Write state only under `PLUGIN_DATA`, which survives uninstall and reinstall.
 Every process you declare runs under the policy the Runtime resolves from the
 user's session profile, inherited and never widened, with the plugin's own
-`PLUGIN_DATA` as the one added write grant. There is no permission field in the
-format and no per-plugin permission setting, so declaring a capability never
-grants it: keep credentials in user configuration rather than in the package,
+`PLUGIN_DATA` as the one added write grant. Declaring `desktop-control`,
+`host-access`, or `computer-use` requests access to the real computer
+environment but never grants it; the user must explicitly authorize the plugin
+in OpenAgent settings. Keep credentials in user configuration rather than in the package,
 and expect the host's own credential variables to be stripped from your child
 environment. Prefer a `.mjs` or `.js` entry point: OpenAgent runs a declared
 path ending in either extension under the session's `node`, so one file works on
