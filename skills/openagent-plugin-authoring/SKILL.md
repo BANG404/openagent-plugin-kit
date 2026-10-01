@@ -1,6 +1,6 @@
 ---
 name: openagent-plugin-authoring
-description: Use when creating or changing an OpenAgent Agent Plugin package, including plugin.json fields, package containment, bundled Agent Skills, mcp.json stdio or streamable-http servers, slash commands, autonomous flows, sidebar views, automation hooks, message policies, and PLUGIN_DATA state. Covers the Agent Plugins 1.0.0 rules the OpenAgent loader enforces and the diagnostics it reports when a component is skipped.
+description: Use when creating or changing an OpenAgent Agent Plugin package, including plugin.json fields, package containment, bundled Agent Skills, mcp.json stdio or streamable-http servers, slash commands, sidebar views, automation hooks, message policies, and PLUGIN_DATA state. Covers the Agent Plugins 1.0.0 rules the OpenAgent loader enforces and the diagnostics it reports when a component is skipped.
 metadata:
   category: integrations
 ---
@@ -25,6 +25,11 @@ OpenAgent's product-owned standard packages are published at:
 Use this repository's templates and validator as the source of truth for
 portable package structure. Contract changes must be mirrored in the OpenAgent
 Runtime and its owner Skills before a package release is published.
+
+For package orchestration, use the dependency-free client in
+`lib/openagent-host.mjs` (see `docs/host-bridge.md`). It is the common
+conversation, branch, Agent submit/wake, roles, and event interface; keep all
+domain state and scheduling in the package.
 
 ## Manifest skeleton
 
@@ -96,16 +101,12 @@ Never override `PLUGIN_ROOT` or `PLUGIN_DATA` in `env`. `streamable-http`
 requires HTTPS except for literal loopback endpoints; `sse` is reported and
 skipped.
 
-## Commands, flows, sidebar, and automation
+## Commands, sidebar, and automation
 
 - Commands are exposed as `/<plugin-name>:<command-id>`. The executable receives
-  a JSON request on stdin with `conversation_id`, `plugin_id`, `command`,
-  `argument`, and `input`, and must print a non-empty prompt on stdout.
-- Flows are autonomous loops exposed the same way. Declare `step`, plus optional
-  `timeout_secs` and `max_iterations`; the step answers each iteration with the
-  next turn's `prompt` and a `done` flag, and owns its own state and completion
-  rule. Build one only when a single command's prompt cannot carry the work
-  across turn boundaries.
+  a JSON request on stdin with `conversation_id`, `branch_id`, `plugin_id`,
+  `command`, `argument`, and `input`, and must print a non-empty prompt on
+  stdout.
 - Sidebar views run as sandboxed HTML and receive only the context fields listed
   in their `capabilities`. Never expect transcript text, model output, file
   contents, or another plugin's state.

@@ -21,3 +21,10 @@ tool call.
 
 Each component here is a trimmed copy of the dedicated template. When you only
 need one capability, scaffold from that template instead and delete nothing.
+# Host bridge example
+
+The full kit includes `lib/openagent-host.mjs` and `bin/host.mjs`. Use the
+client's capability modules from package code when you need to create a child,
+wake an Agent, inspect a branch, list roles, or emit progress. The Runtime has
+no Graph/Goal/Groups implementation to register; those workflows belong in the
+package.

@@ -21,8 +21,8 @@ hosts; change `command` to the `.sh` path (and make the file executable with
 
 ## Contract
 
-- stdin receives one JSON object with `conversation_id`, `plugin_id`, `command`,
-  `argument`, and `input`.
+- stdin receives one JSON object with `conversation_id`, `branch_id`,
+  `plugin_id`, `command`, `argument`, and `input`.
 - stdout must be a non-empty prompt. An empty stdout or a non-zero exit means
   the command produced nothing.
 - `timeout_secs` is 1-300. The process runs through the normal OpenAgent process

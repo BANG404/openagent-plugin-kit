@@ -3,7 +3,7 @@
  * A portable plugin command.
  *
  * OpenAgent writes one JSON request to stdin containing `conversation_id`,
- * `plugin_id`, `command`, `argument`, and the original `input`. Whatever this
+ * `branch_id`, `plugin_id`, `command`, `argument`, and the original `input`. Whatever this
  * process prints on stdout becomes the prompt for the model, so it must not be
  * empty. A non-zero exit discards the output.
  */

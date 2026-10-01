@@ -96,7 +96,6 @@ describe("conformance fixtures", () => {
             skills: report.skills.length,
             mcpServers: report.mcpServers.length,
             commands: report.commands.length,
-            flows: report.flows.length,
             sidebar: report.sidebar.length,
             automation: report.automation.length,
             messagePolicies: report.messagePolicies.length,
@@ -109,11 +108,6 @@ describe("conformance fixtures", () => {
       if (expect_.commands !== undefined) {
         expect_.commands.forEach((expected, index) => {
           expectComponents(report.commands[index], expected, name);
-        });
-      }
-      if (expect_.flows !== undefined) {
-        expect_.flows.forEach((expected, index) => {
-          expectComponents(report.flows[index], expected, name);
         });
       }
       if (expect_.sidebar !== undefined) {

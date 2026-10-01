@@ -10,6 +10,8 @@ author needs, and nothing else:
   copy or scaffold from.
 - `scripts/` - `new-plugin.mjs` (scaffold) and `validate-plugin.mjs` (validate),
   whose rules mirror the OpenAgent runtime loader.
+- `lib/openagent-host.mjs` - the shared dependency-free host bridge client for
+  conversation, branch, Agent wake, role, and event capabilities.
 
 The repository root is itself a valid Agent Plugin package: installing this
 repository adds the bundled skills to the global skill catalog. `templates/`,
@@ -65,6 +67,11 @@ can be subscribed to directly from GitHub:
 
 Each package declares its matching `extensions.openagent.runtime` binding and
 publishes verified release archives for the host updater.
+
+Packages that orchestrate other Agents should start with
+[`docs/host-bridge.md`](docs/host-bridge.md); the host surface is uniform, so
+the package owns the domain workflow instead of adding a Runtime-specific
+integration.
 
 ## Layout
 

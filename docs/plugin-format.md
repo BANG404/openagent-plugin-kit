@@ -182,7 +182,8 @@ Portable slash commands, addressed as `/<plugin-name>:<command-id>`.
 | `timeout_secs` | no | 1-300, default 30 |
 
 On invocation OpenAgent writes a JSON request to stdin containing
-`conversation_id`, `plugin_id`, `command`, `argument`, and the original `input`.
+`conversation_id`, the selected `branch_id` (or `null` for a root turn),
+`plugin_id`, `command`, `argument`, and the original `input`.
 Stdout must be a non-empty prompt.
 
 The executable runs through the normal process boundary, and its working
@@ -193,8 +194,8 @@ running. Reference anything inside your package by an absolute path derived
 from `PLUGIN_ROOT` rather than by a relative one.
 
 A declared path carries no interpreter field, so OpenAgent applies one
-extension rule to every entry point it runs — a command, a flow `step`, an
-automation hook, and a daemon command alike. A path ending in `.mjs` or `.js`
+extension rule to every entry point it runs — a command, an automation hook,
+and a daemon command alike. A path ending in `.mjs` or `.js`
 runs under the session's `node`; anything else is run as the program itself.
 One JavaScript entry point therefore works on every platform, while a native or
 shell entry points at one and needs a shim per platform.
@@ -204,36 +205,6 @@ its absolute installed path. `${PLUGIN_ROOT}` and `${PLUGIN_DATA}` are expanded
 in `mcp.json` entries, not in a command's environment or command line, so a
 script that needs files beside itself derives that directory from its own
 location.
-
-### `flows`
-
-A flow is a package-owned autonomous loop: OpenAgent dispatches the turns, and
-your package decides what each one does. Addressed as
-`/<plugin-name>:<flow-id>`, exactly like a command.
-
-| Field | Required | Rules |
-| --- | --- | --- |
-| `id` | yes | Same naming rules as the plugin name |
-| `label` | yes | Non-empty display label |
-| `description` | yes | Non-empty display description |
-| `argument` | no | `none` (default) or `required_text` |
-| `step` | yes | Package-relative executable path |
-| `timeout_secs` | no | 1-300, default 60 |
-| `max_iterations` | no | 1-100, default 100 |
-
-The Runtime writes one JSON object to the step's stdin per iteration —
-`conversation_id`, `plugin_id`, `flow_id`, `iteration`, `argument`, `input`, and
-the previous turn's `last_output` — and reads one JSON object back: a non-empty
-`prompt` for the next turn, a `done` flag, and optionally a `state` display
-projection. The Runtime interprets nothing beyond `prompt` and `done`: your
-package owns its state schema, its status vocabulary, and its completion rule.
-A step that returns an empty prompt, invalid JSON, a non-zero exit status, or
-times out fails the flow without starting another turn.
-
-Steps run under the package's own process policy, need an active workspace, and
-receive the same `PLUGIN_ROOT` and `PLUGIN_DATA` as the package's MCP servers,
-so a step and its tools share one state directory. The package's
-`openagent-plugin-authoring` skill documents the loop contract in full.
 
 ### `message_policies`
 
