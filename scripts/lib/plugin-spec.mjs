@@ -369,14 +369,14 @@ function inspectExtensions(root, report, openagent) {
   }
 
   if (openagent.runtime !== undefined) {
-    if (!["chat-groups", "goal", "graph", "cua-driver"].includes(openagent.runtime)) {
+    if (typeof openagent.runtime !== "string" || openagent.runtime.trim().length === 0) {
       push(
         report,
         "warning",
-        "Ignored plugin runtime binding: expected one of chat-groups, goal, graph, cua-driver",
+        "Ignored plugin runtime provenance: expected a non-empty string",
       );
     } else {
-      report.runtime = openagent.runtime;
+      report.runtime = openagent.runtime.trim();
     }
   }
   const capabilities = stringArray(openagent.capabilities);

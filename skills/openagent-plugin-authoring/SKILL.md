@@ -119,11 +119,10 @@ skipped.
   `capabilities` are required even when empty: the loader rejects a declaration
   that omits either one. The host validates containment and owns supervision;
   pair the daemon with a normal MCP client when the capability is model-facing.
-- Product-owned plugins may also declare `extensions.openagent.runtime` with
-  `chat-groups`, `goal`, `graph`, or `cua-driver`. This trusted binding lets
-  OpenAgent subscribe to the plugin's GitHub repository and apply verified
-  package releases while keeping durable state and permission checks in the
-  host. It is not a general capability escalation mechanism.
+- A package may declare `extensions.openagent.runtime` as an opaque provenance
+  marker used by update or migration tooling. It never selects an in-process
+  implementation or grants a capability; every package uses the same generic
+  host bridge and process boundary.
 - Declare `timeout_secs` between 1 and 300. A hook or command failure is isolated
   and reported; it never stops runtime finalization.
 

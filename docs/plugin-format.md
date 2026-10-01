@@ -162,11 +162,10 @@ token the Runtime reads: declaring it while the session profile restricts
 network access adds a diagnostic naming your plugin instead of failing at the
 first socket.
 
-A package that declares a `runtime` binding is merged into the Runtime's own
-registration for that capability, and the installed card carries the union of
-what the Runtime owns and what the package ships. Restating a product token is
-harmless — the union is a set — but the registration already names it, so
-listing the components you ship says more.
+A package may carry a `runtime` provenance marker for update and migration
+metadata. The marker never selects an implementation, grants a capability, or
+merges the package into a Runtime registry entry. Every package's components
+are loaded through the same ordinary plugin path.
 
 ### `commands`
 
@@ -222,12 +221,9 @@ text output keeps the default model-context behavior and is not persisted as a
 plugin message.
 
 Declare a policy for the tags your own automation prints, and nothing else. A
-package that declares a `runtime` binding shares its card with the Runtime's
-registration, and the Runtime applies its own audience table to the checkpoint
-messages it emits — a policy you declare for one of those tags is namespaced to
-your package and can only ever apply to a message your own automation prints.
-Restating a Runtime tag therefore adds a second entry to the card's policy count
-without changing what any message does.
+package's `runtime` provenance marker has no effect on message policies; the
+Runtime applies only the package's own manifest policy to messages that package
+emits.
 
 ### `daemon`
 
@@ -290,8 +286,8 @@ contents or diffs, and never transcript text or another plugin's state.
 
 ### `runtime`
 
-OpenAgent product plugins may declare a trusted Runtime binding when the
-plugin's durable execution is owned by the OpenAgent Runtime:
+A package may keep an optional provenance marker for migration and release
+metadata:
 
 ```json
 {
@@ -303,11 +299,10 @@ plugin's durable execution is owned by the OpenAgent Runtime:
 }
 ```
 
-Supported bindings are `chat-groups`, `goal`, `graph`, and `cua-driver`. The
-binding identifies one matching product capability; it does not grant a
-package authority over another plugin or over Runtime state. OpenAgent uses
-the package repository as the subscription source and only overlays a matching
-binding from a verified GitHub release.
+The value is an opaque non-empty string. It is informational only: it does not
+identify a Runtime implementation, create a built-in card, grant authority, or
+change how the package is loaded. OpenAgent updates and executes all packages
+through the same manifest, process policy, and host bridge contract.
 
 ### `automation`
 

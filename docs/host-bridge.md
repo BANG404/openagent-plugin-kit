@@ -43,11 +43,23 @@ checkpoint persistence, cancellation, permissions, and branch bookkeeping. The
 package owns its reducer, state schema, prompts, completion rules, and wake
 scheduling.
 
+When a request supplies `branch_id` with a null or omitted
+`parent_checkpoint_id`, the bridge resolves that branch's current head just
+before submission, including after busy-run retries. Packages should use this
+form for continuations so a queued wake follows the checkpoint that just
+finished.
+
+`conversation.state(convId, branchId)` accepts an optional branch ID. Pass the
+package-owned branch whenever state or a continuation must follow a branch that
+is not currently selected in the desktop; omitting it reads the active branch.
+
 The bridge client always sends the authenticated plugin identity. Do not accept
 a plugin ID from user input or forward another package's token. Events named by
 the package are automatically namespaced by the Runtime as
 `plugin:<plugin-id>:<event>`, except for the shared lifecycle notifications
 `plugin-flow-updated`, `plugin-flow-iteration-started`, and `subagent-started`.
+Those shared events must include the authenticated top-level `plugin_id`; a
+`flow.state.plugin_id` is also checked when a flow projection is present.
 
 Hook processes receive the same bridge variables plus `PLUGIN_ROOT` and
 `PLUGIN_DATA`; write durable package state only below `PLUGIN_DATA`.

@@ -1,5 +1,5 @@
 {
-  "description": "the shape of a Runtime-bound product package: identity, a Skill, and no message policies",
+  "description": "the shape of a package with optional Runtime provenance: identity, a Skill, and no message policies",
   "manifest": {
     "name": "goal",
     "version": "1.0.1",
