@@ -36,14 +36,18 @@ The modules are:
 
 `agent.wake` is the explicit asynchronous orchestration entry point. It uses
 the same request shape as `agent.submit`; pass `{ wait: false }` to schedule a
-turn and return immediately. The Runtime owns model execution, checkpoint
-persistence, cancellation, permissions, and branch bookkeeping. The package
-owns its reducer, state schema, prompts, completion rules, and wake scheduling.
+turn and return immediately. A package may mark a request `{ hidden: true }`
+for a model-visible control continuation and attach its own opaque `flow`
+projection for the checkpoint/sidebar. The Runtime owns model execution,
+checkpoint persistence, cancellation, permissions, and branch bookkeeping. The
+package owns its reducer, state schema, prompts, completion rules, and wake
+scheduling.
 
 The bridge client always sends the authenticated plugin identity. Do not accept
 a plugin ID from user input or forward another package's token. Events named by
 the package are automatically namespaced by the Runtime as
-`plugin:<plugin-id>:<event>`.
+`plugin:<plugin-id>:<event>`, except for the shared lifecycle notifications
+`plugin-flow-updated`, `plugin-flow-iteration-started`, and `subagent-started`.
 
 Hook processes receive the same bridge variables plus `PLUGIN_ROOT` and
 `PLUGIN_DATA`; write durable package state only below `PLUGIN_DATA`.
