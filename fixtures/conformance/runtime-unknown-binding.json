@@ -1,8 +1,9 @@
 {
-  "description": "a runtime provenance marker is opaque metadata rather than an implementation binding",
+  "description": "a malformed Runtime implementation binding is rejected",
   "openagent": { "runtime": "telemetry" },
   "expect": {
-    "valid": true,
-    "clean": true
+    "valid": false,
+    "diagnosticCounts": { "warning": 1 },
+    "diagnostics": [{ "level": "warning", "contains": "field 'runtime'" }]
   }
 }

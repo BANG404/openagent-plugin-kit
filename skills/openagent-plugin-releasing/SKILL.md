@@ -18,8 +18,8 @@ The product-owned packages use these independent GitHub subscriptions:
 - `graph`: https://github.com/BANG404/openagent-graph
 - `cua-driver`: https://github.com/BANG404/openagent-cua-driver
 
-Keep each package's `runtime` binding and repository URL aligned with its
-OpenAgent Runtime registration.
+Keep each package's repository URL aligned with its published release. Packages
+are ordinary plugins and do not register a Runtime implementation.
 
 ## Prepare the package
 

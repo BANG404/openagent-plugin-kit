@@ -65,8 +65,9 @@ can be subscribed to directly from GitHub:
 - [Graph](https://github.com/BANG404/openagent-graph)
 - [Cua Driver](https://github.com/BANG404/openagent-cua-driver)
 
-Each package declares its matching `extensions.openagent.runtime` binding and
-publishes verified release archives for the host updater.
+Each package publishes verified release archives for the host updater. Packages
+do not register a Runtime implementation; they use the same generic Host
+Bridge and own their domain state and orchestration.
 
 Packages that orchestrate other Agents should start with
 [`docs/host-bridge.md`](docs/host-bridge.md); the host surface is uniform, so

@@ -352,7 +352,6 @@ function inspectExtensions(root, report, openagent) {
   // it silently, which means a misspelled component key costs the author that
   // whole component without a word anywhere.
   const unread = unknownKeys(openagent, [
-    "runtime",
     "capabilities",
     "commands",
     "message_policies",
@@ -368,17 +367,6 @@ function inspectExtensions(root, report, openagent) {
     );
   }
 
-  if (openagent.runtime !== undefined) {
-    if (typeof openagent.runtime !== "string" || openagent.runtime.trim().length === 0) {
-      push(
-        report,
-        "warning",
-        "Ignored plugin runtime provenance: expected a non-empty string",
-      );
-    } else {
-      report.runtime = openagent.runtime.trim();
-    }
-  }
   const capabilities = stringArray(openagent.capabilities);
   if (capabilities.ok) {
     report.capabilities = capabilities.values;
@@ -1085,7 +1073,6 @@ export function inspectPackage(packageDir) {
     automation: [],
     messagePolicies: [],
     daemon: null,
-    runtime: null,
     diagnostics: [],
   };
   if (!existsSync(report.requestedRoot)) {

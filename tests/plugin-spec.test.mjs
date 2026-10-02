@@ -99,21 +99,21 @@ describe("bundled packages", () => {
 });
 
 describe("diagnostics", () => {
-  test("keeps an optional Runtime provenance marker as metadata", () => {
+  test("rejects a Runtime implementation binding", () => {
     const root = makeTempDirectory();
     writePackage(root, validManifest({ extensions: { openagent: { runtime: "goal" } } }));
     const report = inspectPackage(root);
-    expect(report.runtime).toBe("goal");
-    expect(report.diagnostics).toEqual([]);
+    expect(report.diagnostics[0].level).toBe("warning");
+    expect(report.diagnostics[0].message).toContain("field 'runtime'");
     rmSync(root, { recursive: true, force: true });
   });
 
-  test("rejects a malformed Runtime provenance marker", () => {
+  test("rejects a malformed Runtime implementation binding", () => {
     const root = makeTempDirectory();
     writePackage(root, validManifest({ extensions: { openagent: { runtime: true } } }));
     const report = inspectPackage(root);
-    expect(report.runtime).toBe(null);
-    expect(report.diagnostics[0].message).toContain("runtime provenance");
+    expect(report.diagnostics[0].level).toBe("warning");
+    expect(report.diagnostics[0].message).toContain("field 'runtime'");
     rmSync(root, { recursive: true, force: true });
   });
 

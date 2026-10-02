@@ -28,7 +28,7 @@ await host.event.emit("worker-started", { conv_id: child.conv_id });
 
 The modules are:
 
-- `conversation.create/state/children/update/cancel/delete`
+- `conversation.create/state/children/update/cancel/delete/flow.set`
 - `branch.create/list/setHead/setActive`
 - `agent.submit` and `agent.wake`
 - `roles.list`
@@ -52,6 +52,11 @@ finished.
 `conversation.state(convId, branchId)` accepts an optional branch ID. Pass the
 package-owned branch whenever state or a continuation must follow a branch that
 is not currently selected in the desktop; omitting it reads the active branch.
+
+`conversation.flow.set` stores an opaque package projection for one conversation
+branch. The package supplies the complete `flow` value, including its own
+`plugin_id` and state schema; the Runtime only validates ownership and carries
+the projection through checkpoints and events.
 
 The bridge client always sends the authenticated plugin identity. Do not accept
 a plugin ID from user input or forward another package's token. Events named by

@@ -162,10 +162,9 @@ token the Runtime reads: declaring it while the session profile restricts
 network access adds a diagnostic naming your plugin instead of failing at the
 first socket.
 
-A package may carry a `runtime` provenance marker for update and migration
-metadata. The marker never selects an implementation, grants a capability, or
-merges the package into a Runtime registry entry. Every package's components
-are loaded through the same ordinary plugin path.
+Packages do not declare a Runtime implementation binding. Every package's
+components are loaded through the same ordinary plugin path and use the generic
+Host Bridge for Runtime services.
 
 ### `commands`
 
@@ -220,8 +219,7 @@ policy applied; an undeclared tag is rejected and the message is dropped. Plain
 text output keeps the default model-context behavior and is not persisted as a
 plugin message.
 
-Declare a policy for the tags your own automation prints, and nothing else. A
-package's `runtime` provenance marker has no effect on message policies; the
+Declare a policy for the tags your own automation prints, and nothing else. The
 Runtime applies only the package's own manifest policy to messages that package
 emits.
 
@@ -283,26 +281,6 @@ Entries run as UTF-8 HTML in a sandboxed iframe. The host posts a versioned
 `openagent:sidebar-context` message containing only the fields you declared in
 `capabilities`. File access is metadata-only: names and change kinds, never file
 contents or diffs, and never transcript text or another plugin's state.
-
-### `runtime`
-
-A package may keep an optional provenance marker for migration and release
-metadata:
-
-```json
-{
-  "extensions": {
-    "openagent": {
-      "runtime": "goal"
-    }
-  }
-}
-```
-
-The value is an opaque non-empty string. It is informational only: it does not
-identify a Runtime implementation, create a built-in card, grant authority, or
-change how the package is loaded. OpenAgent updates and executes all packages
-through the same manifest, process policy, and host bridge contract.
 
 ### `automation`
 

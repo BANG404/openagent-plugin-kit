@@ -119,10 +119,9 @@ skipped.
   `capabilities` are required even when empty: the loader rejects a declaration
   that omits either one. The host validates containment and owns supervision;
   pair the daemon with a normal MCP client when the capability is model-facing.
-- A package may declare `extensions.openagent.runtime` as an opaque provenance
-  marker used by update or migration tooling. It never selects an in-process
-  implementation or grants a capability; every package uses the same generic
-  host bridge and process boundary.
+- A package never declares a Runtime implementation binding. Every package uses
+  the same generic host bridge and process boundary, and owns its domain state,
+  reducers, and orchestration.
 - Declare `timeout_secs` between 1 and 300. A hook or command failure is isolated
   and reported; it never stops runtime finalization.
 
