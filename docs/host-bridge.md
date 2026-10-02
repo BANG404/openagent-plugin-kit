@@ -11,9 +11,9 @@ package. It authenticates each request and exposes the same capability modules
 to every plugin:
 
 ```js
-import { createHostClient, requireConversationContext } from "./openagent-host.mjs";
+import { createPluginHost, requireConversationContext } from "./openagent-host.mjs";
 
-const host = createHostClient();
+const host = createPluginHost();
 const { conversationId } = requireConversationContext(toolArguments);
 const child = await host.conversation.create({
   title: "Worker",
@@ -67,4 +67,20 @@ Those shared events must include the authenticated top-level `plugin_id`; a
 `flow.state.plugin_id` is also checked when a flow projection is present.
 
 Hook processes receive the same bridge variables plus `PLUGIN_ROOT` and
-`PLUGIN_DATA`; write durable package state only below `PLUGIN_DATA`.
+`PLUGIN_DATA`; write durable package state only below `PLUGIN_DATA`. Hook stdin
+is an envelope whose routing identifiers are nested under `event`. Use the
+shared parser so a package does not accidentally read the outer envelope:
+
+```js
+import { readFileSync } from "node:fs";
+import { hookContext, hookEvent } from "./openagent-host.mjs";
+
+const event = hookEvent(readFileSync(0, "utf8"));
+const { conversationId, branchId } = hookContext({ event });
+// The package now decides whether to call host.agent.wake(...).
+```
+
+`createHostClient` and `createPluginHost` are aliases. The capability methods
+accept both positional snake_case arguments and object-shaped camelCase
+aliases, and a bounded request timeout turns an unavailable Runtime into a
+structured `OpenAgentHostError`.

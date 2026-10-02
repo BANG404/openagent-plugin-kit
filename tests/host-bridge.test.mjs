@@ -4,6 +4,9 @@ import {
   OpenAgentHostError,
   context,
   createHostClient,
+  createPluginHost,
+  hookContext,
+  hookEvent,
   requireConversationContext,
 } from "../lib/openagent-host.mjs";
 
@@ -89,5 +92,80 @@ describe("OpenAgent host bridge client", () => {
       workspace: "ws",
     });
     expect(() => requireConversationContext({})).toThrow(OpenAgentHostError);
+  });
+
+  test("normalizes SDK aliases and nested hook events", async () => {
+    const requests = [];
+    const host = createPluginHost({
+      environment: {
+        OPENAGENT_PLUGIN_HOST_URL: "http://127.0.0.1:1234/v1/execute",
+        OPENAGENT_PLUGIN_HOST_TOKEN: "secret",
+        OPENAGENT_PLUGIN_ID: "example",
+      },
+      fetch: async (_url, init) => {
+        requests.push(JSON.parse(init.body));
+        return response({ accepted: true });
+      },
+    });
+
+    await host.agent.wake(
+      {
+        convId: "conversation",
+        branchId: "branch",
+        parentCheckpointId: null,
+        text: "continue",
+        flow: { state: { flow_id: "plugin:example:run", title: "Run", status: "running" } },
+      },
+      { wait: false, hidden: true },
+    );
+
+    expect(requests[0]).toEqual({
+      operation: "agent.wake",
+      args: {
+        conv_id: "conversation",
+        branch_id: "branch",
+        parent_checkpoint_id: null,
+        text: "continue",
+        flow: {
+          kind: "plugin",
+          state: { plugin_id: "example", flow_id: "plugin:example:run", title: "Run", status: "running" },
+        },
+        hidden: true,
+        wait: false,
+        plugin_id: "example",
+      },
+    });
+    expect(hookEvent({ hook_event_name: "Stop", event: { conversation_id: "conversation", branch_id: "branch" } })).toEqual({
+      conversation_id: "conversation",
+      branch_id: "branch",
+    });
+    expect(hookContext({ event: { conversation_id: "conversation", branch_id: "branch" } })).toMatchObject({
+      conversationId: "conversation",
+      branchId: "branch",
+    });
+  });
+
+  test("turns an aborted bridge request into an operation error", async () => {
+    const host = createHostClient({
+      environment: {
+        OPENAGENT_PLUGIN_HOST_URL: "http://127.0.0.1:1234/v1/execute",
+        OPENAGENT_PLUGIN_HOST_TOKEN: "secret",
+        OPENAGENT_PLUGIN_ID: "example",
+      },
+      timeoutMs: 5,
+      fetch: async (_url, init) => new Promise((_, reject) => {
+        init.signal.addEventListener("abort", () => {
+          const error = new Error("aborted");
+          error.name = "AbortError";
+          reject(error);
+        }, { once: true });
+      }),
+    });
+
+    await expect(host.event.emit("slow", {})).rejects.toMatchObject({
+      name: "OpenAgentHostError",
+      operation: "event.emit",
+      message: "host operation timed out: event.emit",
+    });
   });
 });

@@ -1,9 +1,10 @@
-import { context, createHostClient, requireConversationContext } from "./lib/openagent-host.mjs";
+import { context, createPluginHost, hookContext, hookEvent, requireConversationContext } from "./lib/openagent-host.mjs";
 
-const client = createHostClient();
+const client = createPluginHost();
 
 export const host = (operation, args = {}) => client.call(operation, args);
-export { context, requireConversationContext };
+export { context, hookContext, hookEvent, requireConversationContext };
+export const hostClient = client;
 export const conversation = client.conversation;
 export const branch = client.branch;
 export const agent = client.agent;
