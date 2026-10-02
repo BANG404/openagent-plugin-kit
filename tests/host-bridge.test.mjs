@@ -29,11 +29,15 @@ describe("OpenAgent host bridge client", () => {
     await host.agent.wake({ conv_id: "child", text: "continue" }, { wait: false });
     await host.conversation.state("conversation", "branch");
     await host.conversation.children("parent", { workspace: "workspace" });
+    await host.conversation.setFlow("conversation", "branch", {
+      kind: "plugin",
+      state: { plugin_id: "example", status: "running" },
+    });
     await host.branch.setHead("branch", "checkpoint");
     await host.roles.list("workspace");
     await host.event.emit("progress", { step: 1 });
 
-    expect(requests).toHaveLength(6);
+    expect(requests).toHaveLength(7);
     const wake = JSON.parse(requests[0].init.body);
     expect(wake).toEqual({
       operation: "agent.wake",
@@ -48,6 +52,15 @@ describe("OpenAgent host bridge client", () => {
     expect(JSON.parse(requests[2].init.body).args).toEqual({
       workspace: "workspace",
       parent_conv_id: "parent",
+      plugin_id: "example",
+    });
+    expect(JSON.parse(requests[3].init.body).args).toEqual({
+      conv_id: "conversation",
+      branch_id: "branch",
+      flow: {
+        kind: "plugin",
+        state: { plugin_id: "example", status: "running" },
+      },
       plugin_id: "example",
     });
   });
