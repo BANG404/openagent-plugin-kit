@@ -153,13 +153,7 @@ describe("OpenAgent host bridge client", () => {
         OPENAGENT_PLUGIN_ID: "example",
       },
       timeoutMs: 5,
-      fetch: async (_url, init) => new Promise((_, reject) => {
-        init.signal.addEventListener("abort", () => {
-          const error = new Error("aborted");
-          error.name = "AbortError";
-          reject(error);
-        }, { once: true });
-      }),
+      fetch: async () => new Promise(() => {}),
     });
 
     await expect(host.event.emit("slow", {})).rejects.toMatchObject({
