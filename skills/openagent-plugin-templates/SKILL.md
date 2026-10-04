@@ -42,6 +42,12 @@ no scaffold inherits the kit's own update source. It refuses to overwrite a
 non-empty destination, never runs the package, and never writes outside the
 destination directory.
 
+Templates declare English only. The scaffold rewrites translated metadata as
+well as root metadata; complete and extend translations before advertising
+another locale. Sidebar examples validate parent, type, version 1 and locale,
+consume host changes, and preserve their scoped state. They retain English as
+their declared fallback until the author supplies more languages.
+
 After scaffolding, complete every `TODO` the script reports and rename anything
 that still carries the template identity:
 
@@ -66,7 +72,7 @@ complete and self-consistent:
 ## Gate
 
 ```bash
-bun run validate:all
+bun scripts/validate-plugin.mjs --all --require-i18n
 bun test
 ```
 

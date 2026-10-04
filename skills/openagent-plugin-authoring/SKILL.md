@@ -43,7 +43,11 @@ domain state and scheduling in the package.
   "repository": "https://github.com/you/my-plugin",
   "extensions": {
     "openagent": {
-      "capabilities": ["skills", "mcp"]
+      "capabilities": ["skills", "mcp"],
+      "i18n": {
+        "supported_locales": ["en"], "default_locale": "en",
+        "translations": {"en": {"display_name": "My Plugin", "description": "One line shown in the installed plugin card."}}
+      }
     }
   }
 }
@@ -143,7 +147,7 @@ a shim per platform.
 ## Verify before installing
 
 ```bash
-bun scripts/validate-plugin.mjs <package-dir>
+bun scripts/validate-plugin.mjs <package-dir> --require-i18n
 ```
 
 The validator mirrors the loader rules and fails on warnings, because a warning
@@ -155,3 +159,11 @@ such a package does not do what it reads as. `fixtures/conformance/` in the kit
 pins each of those rules with one package per case. After the validator passes,
 install the directory through Settings -> Plugins -> Install and exercise every
 component.
+
+Declare only fully translated UI languages. Complete metadata, commands, sidebar
+titles, and notices using the flat keys in `docs/plugin-format.md`. Follow the
+application locale on first mount and live changes using versioned sidebar/MCP
+App context or `await host.locale.get()` before producing a process notice.
+Preserve input, IDs, user content, and state. Official qualification passes all
+keys from the tested platform's `src/lib/platformLocales.json` as `--locales`;
+third-party subsets must display the host's fallback explanation.

@@ -149,9 +149,36 @@ An invalid server entry is skipped without disabling its siblings.
 ## OpenAgent extensions
 
 OpenAgent extensions live under `extensions.openagent` so the package stays
-portable. All seven keys below are optional. A key OpenAgent does not define in
+portable. The keys below are optional for legacy packages. A key OpenAgent does not define in
 this namespace is a typo rather than another host's field, and the loader
 ignores it without a word, so check the spelling of anything you declare here.
+
+### `i18n`
+
+New packages declare `supported_locales` (1-32 unique BCP 47 tags),
+`default_locale` (a member), and `translations` (exactly those locales). Locale
+matching is case insensitive. Each locale contains the same flat keys:
+`display_name`, `description` when present, `commands.<id>.label`,
+`commands.<id>.description`, `sidebar.<id>.title`, and optional `notice.<key>`.
+Use non-empty strings, at most 256 keys per locale and 4096 UTF-8 bytes per
+string. Interpolation parameters such as `{id}` must match across translations.
+Unknown declaration fields or incomplete keys reject the entire package.
+
+The structural schema is `schemas/openagent-i18n.schema.json`; the validator
+also enforces normalized uniqueness, default membership, component coverage,
+UTF-8 limits, and placeholder parity. Missing declarations in old packages are
+unknown support, never inferred from documentation. Run `--require-i18n` for
+authoring and `--locales=<platform locale list>` for official qualification.
+Obtain that list from OpenAgent's `src/lib/platformLocales.json` at the tested
+platform revision instead of hardcoding today's languages.
+
+Cards display the full list before and after installation. Exact locale, then
+supported base language, then declared default determines display language;
+unsupported platform languages show a fallback explanation. Follow the host's
+live locale through sidebar version-one context, MCP App host context, or process
+`locale.get`; preserve input, user content, IDs, and stored state. Model-facing
+Skills are not evidence of translated UI. A third-party package can support a
+subset; an official package must cover every platform locale on every surface.
 
 ### `capabilities`
 

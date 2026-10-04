@@ -1,0 +1,31 @@
+{
+  "description": "advertised translations cannot be whitespace",
+  "openagent": {
+    "i18n": {
+      "supported_locales": [
+        "en",
+        "ZH"
+      ],
+      "default_locale": "en",
+      "translations": {
+        "en": {
+          "display_name": "Board",
+          "description": "Messages"
+        },
+        "zh": {
+          "display_name": "留言板",
+          "description": " "
+        }
+      }
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      {
+        "level": "error",
+        "contains": "plugin i18n"
+      }
+    ]
+  }
+}

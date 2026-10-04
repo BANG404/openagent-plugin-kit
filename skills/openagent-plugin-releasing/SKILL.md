@@ -28,9 +28,17 @@ are ordinary plugins and do not register a Runtime implementation.
    precedence when both versions parse as SemVer, so a release outranks its own
    prerelease and build metadata is ignored; a `version` that does not parse
    falls back to comparing numeric components.
-3. Run `bun scripts/validate-plugin.mjs .` and fix every warning. A warning means
+3. Run `bun scripts/validate-plugin.mjs . --require-i18n` and fix every warning. A warning means
    a component will not load in a fresh install.
 4. Reinstall the package locally and exercise each component before tagging.
+
+Official packages additionally pass `--locales=<comma-separated keys from the
+tested OpenAgent src/lib/platformLocales.json>`. Record that platform revision
+and SDK/package revisions. Inspect before/after-install language lists, first
+mount, live switches in both directions, reopening, enable/disable restoration,
+and third-party fallback in the real application in both themes. Translation
+key parity does not replace UI qualification. Keep existing user content and
+data unchanged. Publish the accepted sources before a parent advances a gitlink.
 
 ## Build the release asset
 

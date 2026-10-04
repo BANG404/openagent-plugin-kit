@@ -1,0 +1,30 @@
+{
+  "description": "locale tags must be well-formed BCP 47",
+  "openagent": {
+    "i18n": {
+      "supported_locales": [
+        "en_US"
+      ],
+      "default_locale": "en",
+      "translations": {
+        "en": {
+          "display_name": "Board",
+          "description": "Messages"
+        },
+        "zh": {
+          "display_name": "留言板",
+          "description": "消息"
+        }
+      }
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      {
+        "level": "error",
+        "contains": "plugin i18n"
+      }
+    ]
+  }
+}

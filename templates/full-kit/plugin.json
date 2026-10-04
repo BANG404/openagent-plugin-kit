@@ -4,10 +4,20 @@
   "version": "1.0.0",
   "description": "Reference template containing every Agent Plugin component OpenAgent supports.",
   "license": "MIT",
-  "keywords": ["openagent", "template", "reference"],
+  "keywords": [
+    "openagent",
+    "template",
+    "reference"
+  ],
   "extensions": {
     "openagent": {
-      "capabilities": ["skills", "mcp", "commands", "sidebar", "automation"],
+      "capabilities": [
+        "skills",
+        "mcp",
+        "commands",
+        "sidebar",
+        "automation"
+      ],
       "message_policies": [
         {
           "tag": "notice",
@@ -32,7 +42,11 @@
           "entry": "ui/panel.html",
           "scope": "workspace",
           "icon": "panel",
-          "capabilities": ["workspace", "locale", "theme"]
+          "capabilities": [
+            "workspace",
+            "locale",
+            "theme"
+          ]
         }
       ],
       "automation": [
@@ -43,7 +57,22 @@
           "command": "hooks/after-tool.cmd",
           "timeout_secs": 15
         }
-      ]
+      ],
+      "i18n": {
+        "supported_locales": [
+          "en"
+        ],
+        "default_locale": "en",
+        "translations": {
+          "en": {
+            "display_name": "openagent-plugin-template-full-kit",
+            "description": "Reference template containing every Agent Plugin component OpenAgent supports.",
+            "commands.describe.label": "Describe package",
+            "commands.describe.description": "Ask the model to summarize this plugin's components",
+            "sidebar.reference-panel.title": "Reference panel"
+          }
+        }
+      }
     }
   }
 }

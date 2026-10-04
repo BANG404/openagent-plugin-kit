@@ -33,6 +33,20 @@ The modules are:
 - `agent.submit` and `agent.wake`
 - `roles.list`
 - `event.emit`
+- `locale.get`
+
+`await host.locale.get()` returns the current resolved application locale from
+the version-one `{version: 1, locale}` response. The client rejects unknown
+versions. Query it before each new independent process notice; a daemon-start
+environment value cannot track live switching. Resolve exact tag, supported base,
+then declared default from the manifest. Do not translate historical content or
+persist transient `_openagent.locale` context. The Runtime admits this read-only
+operation for every enabled authenticated package without a capability grant.
+
+For plugin MCP tool calls the SDK injects the current `_openagent.locale` after
+provider validation, immediately before dispatch. Prefer that request context
+when present; it supports network-restricted tools without a bridge request.
+Independent hook/daemon notices still use the authenticated locale operation.
 
 `agent.wake` is the explicit asynchronous orchestration entry point. It uses
 the same request shape as `agent.submit`; pass `{ wait: false }` to schedule a

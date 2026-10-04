@@ -57,7 +57,10 @@
       // declared context changes. It contains only the capabilities you listed.
       addEventListener("message", (event) => {
         const payload = event.data;
-        if (payload?.type !== "openagent:sidebar-context") return;
+        if (event.source !== parent || payload?.type !== "openagent:sidebar-context" || payload.version !== 1 || typeof payload.locale !== "string") return;
+        // This starter declares English only; preserve state while following host updates.
+        document.documentElement.lang = "en";
+        document.documentElement.dataset.hostLocale = payload.locale;
         const text = (id, value) => {
           document.querySelector(id).textContent = value ?? "-";
         };

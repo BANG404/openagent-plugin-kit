@@ -88,6 +88,15 @@ function writeManifest(targetDirectory, name, description) {
   manifest.name = name;
   manifest.version = "0.1.0";
   manifest.description = description;
+  const i18n = manifest.extensions?.openagent?.i18n;
+  if (i18n) {
+    // The scaffold starts in its declared default language. Authors translate
+    // descriptions before advertising more languages.
+    for (const messages of Object.values(i18n.translations)) {
+      messages.display_name = name;
+      messages.description = description;
+    }
+  }
   delete manifest.repository;
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 }

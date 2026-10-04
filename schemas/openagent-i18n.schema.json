@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAgent plugin presentation languages",
+  "description": "Structural schema for extensions.openagent.i18n. The package validator also checks BCP 47 tags, normalized uniqueness, default membership, component keys, UTF-8 size and placeholder parity.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["supported_locales", "default_locale", "translations"],
+  "properties": {
+    "supported_locales": {"type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 128}},
+    "default_locale": {"type": "string", "minLength": 1, "maxLength": 128},
+    "translations": {"type": "object", "minProperties": 1, "maxProperties": 32, "additionalProperties": {"type": "object", "maxProperties": 256, "required": ["display_name"], "additionalProperties": {"type": "string", "minLength": 1, "maxLength": 4096}}}
+  }
+}

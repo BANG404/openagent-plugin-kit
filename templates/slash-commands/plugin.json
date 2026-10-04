@@ -4,10 +4,16 @@
   "version": "1.0.0",
   "description": "Starter template with a portable slash command backed by a package script.",
   "license": "MIT",
-  "keywords": ["openagent", "template", "commands"],
+  "keywords": [
+    "openagent",
+    "template",
+    "commands"
+  ],
   "extensions": {
     "openagent": {
-      "capabilities": ["commands"],
+      "capabilities": [
+        "commands"
+      ],
       "commands": [
         {
           "id": "word-count",
@@ -17,7 +23,21 @@
           "command": "bin/word-count.cmd",
           "timeout_secs": 15
         }
-      ]
+      ],
+      "i18n": {
+        "supported_locales": [
+          "en"
+        ],
+        "default_locale": "en",
+        "translations": {
+          "en": {
+            "display_name": "openagent-plugin-template-slash-commands",
+            "description": "Starter template with a portable slash command backed by a package script.",
+            "commands.word-count.label": "Word count",
+            "commands.word-count.description": "Count the words in the supplied text and report the longest one"
+          }
+        }
+      }
     }
   }
 }

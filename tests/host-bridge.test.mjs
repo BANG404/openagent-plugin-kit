@@ -15,6 +15,22 @@ function response(result, ok = true, status = 200) {
 }
 
 describe("OpenAgent host bridge client", () => {
+  test("locale is read live and rejects unknown response versions", async () => {
+    let locale = "zh";
+    let version = 1;
+    const host = createHostClient({environment: {
+      OPENAGENT_PLUGIN_HOST_URL: "http://127.0.0.1:1234/v1/execute",
+      OPENAGENT_PLUGIN_HOST_TOKEN: "secret", OPENAGENT_PLUGIN_ID: "example",
+    }, fetch: async (_url, init) => {
+      expect(JSON.parse(init.body)).toEqual({operation: "locale.get", args: {plugin_id: "example"}});
+      return response({version, locale});
+    }});
+    expect(await host.locale.get()).toBe("zh");
+    locale = "en";
+    expect(await host.locale.get()).toBe("en");
+    version = 2;
+    await expect(host.locale.get()).rejects.toThrow();
+  });
   test("adds the authenticated plugin identity and exposes capability modules", async () => {
     const requests = [];
     const host = createHostClient({

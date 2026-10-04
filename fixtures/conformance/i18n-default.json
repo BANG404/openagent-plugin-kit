@@ -1,0 +1,31 @@
+{
+  "description": "default locale must be declared",
+  "openagent": {
+    "i18n": {
+      "supported_locales": [
+        "en",
+        "ZH"
+      ],
+      "default_locale": "fr",
+      "translations": {
+        "en": {
+          "display_name": "Board",
+          "description": "Messages"
+        },
+        "zh": {
+          "display_name": "留言板",
+          "description": "消息"
+        }
+      }
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      {
+        "level": "error",
+        "contains": "plugin i18n"
+      }
+    ]
+  }
+}

@@ -14,6 +14,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { formatReport, hasFailures, inspectPackage } from "./lib/plugin-spec.mjs";
+import { normalizePluginLocale } from "../lib/plugin-i18n.mjs";
 
 const kitRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const templatesRoot = path.join(kitRoot, "templates");
@@ -25,6 +26,8 @@ function usage() {
     "",
     "  --all    validate this kit and every directory under templates/",
     "  --json   print machine-readable output",
+    "  --require-i18n   require a validated language declaration",
+    "  --locales=<tags> require every comma-separated platform locale",
     "",
     "Exit status is 1 when any package has an error or warning.",
   ].join("\n");
@@ -41,6 +44,8 @@ function templateDirectories() {
 function main(argv) {
   const targets = [];
   let json = false;
+  let requireI18n = false;
+  let requiredLocales = [];
   for (const argument of argv) {
     if (argument === "--all") {
       targets.push({ label: "kit", directory: kitRoot });
@@ -51,6 +56,14 @@ function main(argv) {
     }
     if (argument === "--json") {
       json = true;
+      continue;
+    }
+    if (argument === "--require-i18n") { requireI18n = true; continue; }
+    if (argument.startsWith("--locales=")) {
+      requiredLocales = argument.slice("--locales=".length).split(",");
+      if (!requiredLocales.length || requiredLocales.some(value => !value)) throw new Error("--locales requires a non-empty comma-separated platform locale list");
+      requiredLocales = requiredLocales.map(normalizePluginLocale);
+      requireI18n = true;
       continue;
     }
     if (argument === "--help" || argument === "-h") {
@@ -74,6 +87,8 @@ function main(argv) {
   let failed = false;
   for (const target of targets) {
     const report = inspectPackage(target.directory);
+    if (requireI18n && !report.i18n) report.diagnostics.push({level:"error", message:"plugin must declare extensions.openagent.i18n"});
+    else if (requiredLocales.some(locale => !report.i18n?.supported_locales.includes(locale.toLowerCase()))) report.diagnostics.push({level:"error", message:"official plugin is missing a platform locale"});
     reports.push({ label: target.label, report });
     if (hasFailures(report)) failed = true;
   }
@@ -88,6 +103,7 @@ function main(argv) {
             root: report.root ?? report.requestedRoot,
             name: report.name,
             version: report.version,
+            i18n: report.i18n,
             ok: !hasFailures(report),
             components: {
               skills: report.skills.map((skill) => skill.name),

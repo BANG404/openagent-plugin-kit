@@ -4,10 +4,28 @@
   "version": "1.0.0",
   "description": "Starter template with several Skills that form one capability.",
   "license": "MIT",
-  "keywords": ["openagent", "template", "skills"],
+  "keywords": [
+    "openagent",
+    "template",
+    "skills"
+  ],
   "extensions": {
     "openagent": {
-      "capabilities": ["skills"]
+      "capabilities": [
+        "skills"
+      ],
+      "i18n": {
+        "supported_locales": [
+          "en"
+        ],
+        "default_locale": "en",
+        "translations": {
+          "en": {
+            "display_name": "openagent-plugin-template-skill-pack",
+            "description": "Starter template with several Skills that form one capability."
+          }
+        }
+      }
     }
   }
 }

@@ -1,0 +1,33 @@
+{
+  "description": "notice interpolation parameters must agree",
+  "openagent": {
+    "i18n": {
+      "supported_locales": [
+        "en",
+        "ZH"
+      ],
+      "default_locale": "en",
+      "translations": {
+        "en": {
+          "display_name": "Board",
+          "description": "Messages",
+          "notice.busy": "Busy {id}"
+        },
+        "zh": {
+          "display_name": "留言板",
+          "description": "消息",
+          "notice.busy": "忙碌 {other}"
+        }
+      }
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      {
+        "level": "error",
+        "contains": "plugin i18n"
+      }
+    ]
+  }
+}

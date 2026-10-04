@@ -348,7 +348,16 @@ export function createHostClient({
     },
   };
 
-  return Object.freeze({ pluginId: identity, call, conversation, branch, agent, roles, event });
+  const locale = {
+    async get() {
+      const result = await call("locale.get");
+      if (result?.version !== 1 || typeof result.locale !== "string" || !result.locale) {
+        throw new OpenAgentHostError("unsupported host locale response");
+      }
+      return result.locale;
+    },
+  };
+  return Object.freeze({ pluginId: identity, call, conversation, branch, agent, roles, event, locale });
 }
 
 /** The longer name is used by reference templates; keep both spellings stable. */

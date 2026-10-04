@@ -4,10 +4,16 @@
   "version": "1.0.0",
   "description": "Starter template with a sandboxed sidebar panel that reads the versioned host context.",
   "license": "MIT",
-  "keywords": ["openagent", "template", "sidebar"],
+  "keywords": [
+    "openagent",
+    "template",
+    "sidebar"
+  ],
   "extensions": {
     "openagent": {
-      "capabilities": ["sidebar"],
+      "capabilities": [
+        "sidebar"
+      ],
       "sidebar": [
         {
           "id": "example-panel",
@@ -15,9 +21,26 @@
           "entry": "ui/panel.html",
           "scope": "conversation",
           "icon": "panel",
-          "capabilities": ["conversation", "locale", "theme"]
+          "capabilities": [
+            "conversation",
+            "locale",
+            "theme"
+          ]
         }
-      ]
+      ],
+      "i18n": {
+        "supported_locales": [
+          "en"
+        ],
+        "default_locale": "en",
+        "translations": {
+          "en": {
+            "display_name": "openagent-plugin-template-sidebar-panel",
+            "description": "Starter template with a sandboxed sidebar panel that reads the versioned host context.",
+            "sidebar.example-panel.title": "Example panel"
+          }
+        }
+      }
     }
   }
 }

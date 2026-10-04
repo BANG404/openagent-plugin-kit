@@ -1,0 +1,1 @@
+{"description":"locale uniqueness is case insensitive","openagent":{"i18n":{"supported_locales":["en","EN"],"default_locale":"en","translations":{"en":{"display_name":"Board","description":"Messages"}}}},"expect":{"valid":false,"diagnostics":[{"level":"error","contains":"duplicate locale"}]}}

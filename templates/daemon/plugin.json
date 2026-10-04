@@ -6,12 +6,30 @@
   "license": "MIT",
   "extensions": {
     "openagent": {
-      "capabilities": ["daemon"],
+      "capabilities": [
+        "daemon"
+      ],
       "daemon": {
         "command": "bin/daemon.mjs",
-        "args": ["--stdio"],
+        "args": [
+          "--stdio"
+        ],
         "transport": "stdio",
-        "capabilities": ["example"]
+        "capabilities": [
+          "example"
+        ]
+      },
+      "i18n": {
+        "supported_locales": [
+          "en"
+        ],
+        "default_locale": "en",
+        "translations": {
+          "en": {
+            "display_name": "openagent-plugin-template-daemon",
+            "description": "Reference package for a long-lived OpenAgent capability daemon."
+          }
+        }
       }
     }
   }

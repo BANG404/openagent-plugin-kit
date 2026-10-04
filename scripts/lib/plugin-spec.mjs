@@ -14,6 +14,7 @@ import {
 } from "node:fs";
 import { isIP } from "node:net";
 import path from "node:path";
+import { validatePluginI18n } from "../../lib/plugin-i18n.mjs";
 
 export const PLUGIN_SCHEMA_1_0 =
   "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json";
@@ -358,6 +359,7 @@ function inspectExtensions(root, report, openagent) {
     "sidebar",
     "automation",
     "daemon",
+    "i18n",
   ]);
   for (const key of unread) {
     push(
@@ -1000,6 +1002,12 @@ function inspectManifest(root, report) {
   }
   report.version = value.version ?? null;
   report.description = value.description ?? null;
+  try {
+    report.i18n = validatePluginI18n(value);
+  } catch (error) {
+    push(report, "error", `invalid plugin i18n: ${error.message}`);
+    return false;
+  }
 
   if (value.author !== undefined) {
     const authorInvalid =

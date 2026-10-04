@@ -1,0 +1,1 @@
+{"description":"advertised locales cannot omit host-visible translations","openagent":{"i18n":{"supported_locales":["en","zh"],"default_locale":"en","translations":{"en":{"display_name":"Board","description":"Messages"},"zh":{"display_name":"留言板"}}}},"expect":{"valid":false,"diagnostics":[{"level":"error","contains":"incomplete plugin translations"}]}}

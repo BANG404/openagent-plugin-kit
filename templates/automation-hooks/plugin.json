@@ -4,10 +4,16 @@
   "version": "1.0.0",
   "description": "Starter template with a lifecycle hook that emits a user-visible plugin message.",
   "license": "MIT",
-  "keywords": ["openagent", "template", "automation"],
+  "keywords": [
+    "openagent",
+    "template",
+    "automation"
+  ],
   "extensions": {
     "openagent": {
-      "capabilities": ["automation"],
+      "capabilities": [
+        "automation"
+      ],
       "message_policies": [
         {
           "tag": "notice",
@@ -23,7 +29,19 @@
           "command": "hooks/after-tool.cmd",
           "timeout_secs": 15
         }
-      ]
+      ],
+      "i18n": {
+        "supported_locales": [
+          "en"
+        ],
+        "default_locale": "en",
+        "translations": {
+          "en": {
+            "display_name": "openagent-plugin-template-automation-hooks",
+            "description": "Starter template with a lifecycle hook that emits a user-visible plugin message."
+          }
+        }
+      }
     }
   }
 }
