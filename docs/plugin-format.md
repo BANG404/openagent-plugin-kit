@@ -160,6 +160,7 @@ New packages declare `supported_locales` (1-32 unique BCP 47 tags),
 matching is case insensitive. Each locale contains the same flat keys:
 `display_name`, `description` when present, `commands.<id>.label`,
 `commands.<id>.description`, `sidebar.<id>.title`, and optional `notice.<key>`.
+Notice keys, including the `notice.` prefix, are limited to 128 UTF-8 bytes.
 Use non-empty strings, at most 256 keys per locale and 4096 UTF-8 bytes per
 string. Interpolation parameters such as `{id}` must match across translations.
 Unknown declaration fields or incomplete keys reject the entire package.

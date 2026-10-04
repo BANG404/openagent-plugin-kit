@@ -20,3 +20,10 @@ test("locale syntax includes extensions and private use without accepting repeat
   for (const tag of ["zh-Hans-CN","en-u-ca-gregory","en-abcde-u-abcde","x-private","i-klingon"]) expect(normalizePluginLocale(tag)).toBe(tag.toLowerCase());
   for (const tag of ["en_US","en-abcde-abcde","en-u-ca-gregory-u-hc-h12"," en"]) expect(()=>normalizePluginLocale(tag)).toThrow();
 });
+test("notice keys use the Runtime UTF-8 byte limit", () => {
+  const input = manifest();
+  for (const messages of Object.values(input.extensions.openagent.i18n.translations)) messages[`notice.${"界".repeat(40)}`] = "Busy";
+  expect(validatePluginI18n(input)).not.toBeNull();
+  for (const messages of Object.values(input.extensions.openagent.i18n.translations)) messages[`notice.${"界".repeat(41)}`] = "Busy";
+  expect(() => validatePluginI18n(input)).toThrow("incomplete");
+});
