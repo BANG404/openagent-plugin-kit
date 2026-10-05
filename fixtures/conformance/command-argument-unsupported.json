@@ -1,12 +1,12 @@
 {
-  "description": "an argument mode outside the two the runtime implements is rejected",
+  "description": "an unsupported command argument mode is rejected",
   "openagent": {
     "commands": [
       {
         "id": "note",
         "label": "Note",
         "description": "Record a note from the conversation",
-        "argument": "optional_text",
+        "argument": "optional",
         "command": "bin/note.cmd"
       }
     ]
@@ -15,7 +15,7 @@
   "expect": {
     "valid": false,
     "diagnostics": [
-      { "level": "warning", "contains": "argument must be 'none' or 'required_text'" }
+      { "level": "warning", "contains": "argument must be 'none', 'required_text' or 'optional_text'" }
     ],
     "components": { "commands": 0 }
   }

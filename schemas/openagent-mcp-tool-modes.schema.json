@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAgent MCP tool mounting",
+  "type": "object",
+  "properties": {
+    "mcp_tool_mode": {"enum": ["direct", "relay"], "default": "direct"},
+    "mcp_tool_modes": {
+      "type": "object",
+      "propertyNames": {"minLength": 1},
+      "additionalProperties": {"enum": ["direct", "relay"]}
+    }
+  }
+}

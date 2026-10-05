@@ -45,7 +45,7 @@ export const SIDEBAR_CAPABILITIES = [
 
 export const SIDEBAR_SCOPES = ["global", "workspace", "conversation"];
 
-export const COMMAND_ARGUMENTS = ["none", "required_text"];
+export const COMMAND_ARGUMENTS = ["none", "required_text", "optional_text"];
 
 export const LIFECYCLE_EVENTS = [
   "session_start",
@@ -360,6 +360,8 @@ function inspectExtensions(root, report, openagent) {
     "automation",
     "daemon",
     "i18n",
+    "mcp_tool_mode",
+    "mcp_tool_modes",
   ]);
   for (const key of unread) {
     push(
@@ -370,6 +372,20 @@ function inspectExtensions(root, report, openagent) {
   }
 
   const capabilities = stringArray(openagent.capabilities);
+  if (openagent.mcp_tool_mode !== undefined && !["direct", "relay"].includes(openagent.mcp_tool_mode)) {
+    push(report, "error", "extensions.openagent.mcp_tool_mode must be 'direct' or 'relay'");
+  }
+  if (openagent.mcp_tool_modes !== undefined) {
+    if (!isPlainObject(openagent.mcp_tool_modes)) {
+      push(report, "error", "extensions.openagent.mcp_tool_modes must be a server-name object");
+    } else {
+      for (const [name, mode] of Object.entries(openagent.mcp_tool_modes)) {
+        if (!name || !["direct", "relay"].includes(mode)) {
+          push(report, "error", `mcp_tool_modes.${name} must name a server and be 'direct' or 'relay'`);
+        }
+      }
+    }
+  }
   if (capabilities.ok) {
     report.capabilities = capabilities.values;
   } else {
@@ -561,7 +577,7 @@ function normalizeCommand(entry) {
     return { ok: false, reason: typeMismatch("argument", argument, "use 'none'") };
   }
   if (!COMMAND_ARGUMENTS.includes(argument)) {
-    return { ok: false, reason: "argument must be 'none' or 'required_text'" };
+    return { ok: false, reason: "argument must be 'none', 'required_text' or 'optional_text'" };
   }
   if (!isComponentPath(entry.command)) {
     return { ok: false, reason: "command must be a package-relative path" };
@@ -1102,6 +1118,15 @@ export function inspectPackage(packageDir) {
   if (!inspectManifest(report.root, report)) return report;
   inspectSkills(report.root, report);
   inspectMcp(report.root, report);
+  const openagent = readJsonFile(path.join(report.root, MANIFEST_FILE)).extensions?.openagent;
+  const defaultMode = openagent?.mcp_tool_mode ?? "direct";
+  const modes = isPlainObject(openagent?.mcp_tool_modes) ? openagent.mcp_tool_modes : {};
+  for (const server of report.mcpServers) server.tool_mode = modes[server.name] ?? defaultMode;
+  for (const name of Object.keys(modes)) {
+    if (!report.mcpServers.some((server) => server.name === name)) {
+      push(report, "warning", `mcp_tool_modes.${name} does not name a loaded MCP server`);
+    }
+  }
   return report;
 }
 

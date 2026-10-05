@@ -14,6 +14,9 @@ The plugin exposes two tools from a local stdio MCP server:
 
 ## Procedure
 
+If the tools are absent, call `load_tool` to discover and mount the plugin's
+notes server. The package defaults to relay; users can override it to direct.
+
 1. To record something, call `notes_add` with the user's text unchanged.
 2. To review, call `notes_list` and present the notes in the returned order.
 3. Report the stored count after an add, so the user can tell it succeeded.

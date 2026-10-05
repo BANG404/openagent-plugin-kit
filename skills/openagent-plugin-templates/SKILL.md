@@ -48,6 +48,10 @@ another locale. Sidebar examples validate parent, type, version 1 and locale,
 consume host changes, and preserve their scoped state. They retain English as
 their declared fallback until the author supplies more languages.
 
+The MCP tools template demonstrates `relay` mounting through `load_tool`;
+the full kit demonstrates `direct` mounting. Change the manifest mode to fit
+the package and translate i18n `display_name` without changing routing IDs.
+
 After scaffolding, complete every `TODO` the script reports and rename anything
 that still carries the template identity:
 

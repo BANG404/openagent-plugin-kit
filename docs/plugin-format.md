@@ -148,6 +148,24 @@ An invalid server entry is skipped without disabling its siblings.
 
 ## OpenAgent extensions
 
+### MCP mounting mode
+
+Set `extensions.openagent.mcp_tool_mode` to `direct` (default) for immediate
+model availability or `relay` for discovery and mounting through `load_tool`.
+Optional `mcp_tool_modes` maps names from `mcp.json` to overrides, for example
+`{"search":"relay","controls":"direct"}`. The structural schema is
+`schemas/openagent-mcp-tool-modes.schema.json`. Invalid modes reject the
+manifest; overrides naming no loaded server produce diagnostics. Transport,
+permissions, plugin ownership, role availability and live locale are independent
+of mounting mode. Successful relay loads use the host's normal durable mount
+restoration. Keep these host options out of portable `mcp.json`.
+Users can override every server in a plugin from OpenAgent Settings. Direct or
+Relay wins over these declarations; Follow plugin declaration removes that
+override. Package updates and uninstall preserve the user preference.
+
+Plugin `name` is the routing and data identity. Translate the readable plugin
+name through each locale's i18n `display_name`; never translate the root ID.
+
 OpenAgent extensions live under `extensions.openagent` so the package stays
 portable. The keys below are optional for legacy packages. A key OpenAgent does not define in
 this namespace is a typo rather than another host's field, and the loader
@@ -203,7 +221,7 @@ Portable slash commands, addressed as `/<plugin-name>:<command-id>`.
 | `id` | yes | Same naming rules as the plugin name |
 | `label` | yes | Non-empty display label |
 | `description` | yes | Non-empty display description |
-| `argument` | no | `none` (default) or `required_text` |
+| `argument` | no | `none` (default), `required_text`, or `optional_text` |
 | `command` | yes | Package-relative executable path |
 | `timeout_secs` | no | 1-300, default 30 |
 

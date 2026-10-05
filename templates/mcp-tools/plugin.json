@@ -26,7 +26,8 @@
             "description": "Starter template with a dependency-free stdio MCP server and a Skill that explains it."
           }
         }
-      }
+      },
+      "mcp_tool_mode": "relay"
     }
   }
 }

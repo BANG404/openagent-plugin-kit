@@ -1,0 +1,20 @@
+{
+  "description": "mcp-tool-modes-unknown",
+  "openagent": {
+    "mcp_tool_modes": {
+      "missing": "relay"
+    }
+  },
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "tools": {
+        "type": "stdio",
+        "command": "node"
+      }
+    }
+  },
+  "expect": {
+    "valid": false
+  }
+}

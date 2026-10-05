@@ -72,7 +72,8 @@
             "sidebar.reference-panel.title": "Reference panel"
           }
         }
-      }
+      },
+      "mcp_tool_mode": "direct"
     }
   }
 }

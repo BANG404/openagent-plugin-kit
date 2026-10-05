@@ -1,0 +1,8 @@
+{
+  "description": "optional text keeps a bare command valid while accepting an objective",
+  "openagent": {
+    "commands": [{"id":"goal","label":"Goal","description":"Set or inspect an objective","command":"bin/command.mjs","argument":"optional_text"}]
+  },
+  "files": {"bin/command.mjs":"console.log('prompt');\n"},
+  "expect": {"valid":true,"commands":[{"argument":"optional_text"}]}
+}

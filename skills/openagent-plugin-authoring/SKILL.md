@@ -105,6 +105,12 @@ Never override `PLUGIN_ROOT` or `PLUGIN_DATA` in `env`. `streamable-http`
 requires HTTPS except for literal loopback endpoints; `sse` is reported and
 skipped.
 
+Set manifest `extensions.openagent.mcp_tool_mode` to `direct` for immediate
+mounting or `relay` for `load_tool` discovery and mounting. It defaults to
+`direct`; `mcp_tool_modes` overrides individual names from `mcp.json`.
+Keep the portable MCP transport file unchanged. Translate the readable plugin
+name with i18n `display_name`, keeping the root `name` as its stable ID.
+
 ## Commands, sidebar, and automation
 
 - Commands are exposed as `/<plugin-name>:<command-id>`. The executable receives
