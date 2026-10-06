@@ -110,6 +110,8 @@ mounting or `relay` for `load_tool` discovery and mounting. It defaults to
 `direct`; `mcp_tool_modes` overrides individual names from `mcp.json`.
 Keep the portable MCP transport file unchanged. Translate the readable plugin
 name with i18n `display_name`, keeping the root `name` as its stable ID.
+Read `docs/mcp-lifecycle.md` for periodic Direct/Relay leases, renewal and
+revocation from commands, scripts, hooks or daemons through the Host Bridge.
 
 ## Commands, sidebar, and automation
 

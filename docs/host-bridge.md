@@ -34,6 +34,14 @@ The modules are:
 - `roles.list`
 - `event.emit`
 - `locale.get`
+- `mcp.mount/unmount/status` (see [dynamic MCP mounting](mcp-lifecycle.md))
+- `host.call('runtime.permissions')` returns the version-one live session
+  permission profile used by [isolated development acceptance](development-workflow.md).
+
+Hook events include `execution_id`: one opaque identity per Runtime execution,
+shared by every hook in that execution and distinct on continuation or resume.
+Use it to deduplicate Stop work. `run_id` is the provider/runtime correlation
+identifier and may remain the conversation ID across separate executions.
 
 `await host.locale.get()` returns the current resolved application locale from
 the version-one `{version: 1, locale}` response. The client rejects unknown

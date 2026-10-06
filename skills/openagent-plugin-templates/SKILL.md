@@ -17,6 +17,7 @@ package, not a fragment: copy it, rename the identity, and install it.
 | `minimal` | A single Skill and nothing else |
 | `skill-pack` | Several Skills that belong to one capability |
 | `mcp-tools` | To expose tools through a local stdio MCP server |
+| `mcp-lifecycle` | Direct/Relay leases, command control and bounded hook renewal |
 | `slash-commands` | A `/<plugin>:<command>` entry that returns a prompt |
 | `sidebar-panel` | A sandboxed sidebar surface |
 | `automation-hooks` | To react to lifecycle events and emit a message |

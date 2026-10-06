@@ -1,8 +1,8 @@
 # OpenAgent Plugin Kit
 
 A standalone repository for building [Agent Plugins](https://agent-plugins.org/)
-1.0.0 packages that OpenAgent installs. It ships the three things a plugin
-author needs, and nothing else:
+1.0.0 packages that OpenAgent installs. The installable kit includes a plugin
+development workflow from requirements through testing and developer acceptance:
 
 - `skills/` - agent skills that teach a coding agent how to author, scaffold,
   validate, and release a plugin.
@@ -14,13 +14,18 @@ author needs, and nothing else:
   conversation, branch, Agent wake, role, and event capabilities.
 
 The repository root is itself a valid Agent Plugin package: installing this
-repository adds the bundled skills to the global skill catalog. `templates/`,
+repository adds the bundled Skills, `/openagent-plugin-kit:create` commands,
+development MCP tools and a bounded continuation hook. Start with a description
+or a JSON specification naming Skills and a template repository; see
+[`docs/development-workflow.md`](docs/development-workflow.md). `templates/`,
 `scripts/`, and `docs/` are inert data - the loader only reads `plugin.json`,
 `skills/`, and `mcp.json` at the package root.
 
 ## Requirements
 
 - [Bun](https://bun.sh/) 1.2 or newer for the scaffold and validation scripts.
+- Node.js for installed MCP servers, portable commands and hooks; Git for
+  repository templates, and a selected OpenAgent Runtime server for acceptance.
 - OpenAgent to install and run a generated package.
 
 ## Quick start
@@ -48,6 +53,7 @@ Then install the generated directory in OpenAgent through
 | `minimal` | One `plugin.json` and one Skill | skills |
 | `skill-pack` | Two Skills with workflow-style bodies | skills |
 | `mcp-tools` | A dependency-free stdio MCP server plus `mcp.json` | skills, mcp |
+| `mcp-lifecycle` | Tool leases with Direct controls, commands and hook renewal | mcp, commands, automation |
 | `slash-commands` | A `/<plugin>:<command>` entry backed by a script | commands |
 | `sidebar-panel` | A sandboxed `ui/panel.html` sidebar view | sidebar |
 | `automation-hooks` | An `after_tool` hook with a declared message policy | automation |
@@ -95,6 +101,8 @@ docs/publishing.md              versioning, releases, and updates
   loader enforces, Skill rules, MCP transports, and each OpenAgent extension.
 - `docs/publishing.md` - repository metadata, semantic versioning, release
   assets, and how OpenAgent validates and activates an update.
+- `docs/development-workflow.md` - slash commands, saved gates, continuation,
+  production API acceptance and reports. `docs/mcp-lifecycle.md` owns tool leases.
 - `skills/` - the same guidance in agent-facing form, loaded by OpenAgent when
   the kit is installed.
 

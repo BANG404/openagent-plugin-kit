@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "openagent-plugin-kit",
-  "version": "1.1.0",
-  "description": "Agent skills, starter templates, scaffolding, and validation for OpenAgent Agent Plugins.",
+  "version": "1.2.0",
+  "description": "Create plugins from Skills and templates, implement, test and qualify them with the production Runtime.",
   "license": "MIT",
   "repository": "https://github.com/BANG404/openagent-plugin-kit",
   "keywords": [
@@ -15,17 +15,50 @@
   "extensions": {
     "openagent": {
       "capabilities": [
-        "skills"
+        "skills", "mcp", "commands", "automation"
       ],
+      "mcp_tool_mode": "direct",
+      "commands": [
+        {"id":"create","label":"Create plugin","description":"Start plugin development and acceptance","argument":"required_text","command":"bin/develop-command.mjs","timeout_secs":30},
+        {"id":"resume","label":"Resume development","description":"Resume the saved development workflow","argument":"none","command":"bin/develop-command.mjs","timeout_secs":30},
+        {"id":"stop","label":"Stop development","description":"Cancel automated development continuation","argument":"none","command":"bin/develop-command.mjs","timeout_secs":30},
+        {"id":"status","label":"Development status","description":"Inspect saved candidate and gate evidence","argument":"none","command":"bin/develop-command.mjs","timeout_secs":30},
+        {"id":"accept","label":"Accept candidate","description":"Record developer acceptance of qualified bytes","argument":"none","command":"bin/develop-command.mjs","timeout_secs":30}
+      ],
+      "automation": [{"id":"development-continuation","event":"stop","command":"bin/develop-hook.mjs","timeout_secs":30}],
       "i18n": {
         "supported_locales": [
-          "en"
+          "en", "zh"
         ],
         "default_locale": "en",
         "translations": {
           "en": {
-            "display_name": "openagent-plugin-kit",
-            "description": "Agent skills, starter templates, scaffolding, and validation for OpenAgent Agent Plugins."
+            "display_name": "Plugin Developer",
+            "description": "Create plugins from Skills and templates, implement, test and qualify them with the production Runtime.",
+            "commands.create.label": "Create plugin",
+            "commands.create.description": "Start plugin development and acceptance",
+            "commands.resume.label": "Resume development",
+            "commands.resume.description": "Resume the saved development workflow",
+            "commands.stop.label": "Stop development",
+            "commands.stop.description": "Cancel automated development continuation",
+            "commands.status.label": "Development status",
+            "commands.status.description": "Inspect saved candidate and gate evidence",
+            "commands.accept.label": "Accept candidate",
+            "commands.accept.description": "Record developer acceptance of qualified bytes"
+          },
+          "zh": {
+            "display_name": "插件开发助手",
+            "description": "结合 Skills 和模板创建插件，完成开发、测试及生产 Runtime 验证。",
+            "commands.create.label": "创建插件",
+            "commands.create.description": "开始插件开发与验收流程",
+            "commands.resume.label": "恢复开发",
+            "commands.resume.description": "恢复保存的开发工作流",
+            "commands.stop.label": "停止开发",
+            "commands.stop.description": "取消自动开发续轮",
+            "commands.status.label": "开发状态",
+            "commands.status.description": "查看候选插件和验收证据",
+            "commands.accept.label": "验收插件",
+            "commands.accept.description": "记录开发者对已验证插件的验收"
           }
         }
       }

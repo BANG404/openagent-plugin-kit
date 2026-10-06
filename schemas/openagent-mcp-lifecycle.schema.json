@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAgent plugin MCP mount request",
+  "type": "object",
+  "required": ["operation", "args"],
+  "additionalProperties": false,
+  "properties": {
+    "operation": {"const": "mcp.mount"},
+    "args": {
+      "type": "object", "required": ["server", "mode", "ttl_secs"], "additionalProperties": false,
+      "properties": {
+        "plugin_id": {"type": "string", "minLength": 1},
+        "server": {"type": "string", "minLength": 1},
+        "mode": {"enum": ["direct", "relay"]},
+        "ttl_secs": {"type": "integer", "minimum": 1, "maximum": 86400}
+      }
+    }
+  }
+}

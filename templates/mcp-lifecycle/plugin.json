@@ -1,0 +1,27 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "openagent-plugin-template-mcp-lifecycle",
+  "version": "1.0.0",
+  "description": "Control and renew a declared MCP tool lease from commands and lifecycle hooks.",
+  "license": "MIT",
+  "extensions": {
+    "openagent": {
+      "capabilities": ["mcp", "commands", "automation"],
+      "mcp_tool_modes": {"control":"direct", "tools":"relay"},
+      "commands": [
+        {"id":"mount","label":"Mount tools","description":"Lease tools in direct or relay mode","argument":"optional_text","command":"bin/mount.mjs","timeout_secs":15},
+        {"id":"unmount","label":"Unmount tools","description":"Stop renewal and revoke the tool lease","argument":"none","command":"bin/mount.mjs","timeout_secs":15}
+      ],
+      "automation": [{"id":"renew","event":"before_model","command":"bin/renew.mjs","timeout_secs":15}],
+      "i18n": {
+        "supported_locales":["en"], "default_locale":"en",
+        "translations":{"en":{
+          "display_name":"MCP Lease Template",
+          "description":"Control and renew a declared MCP tool lease from commands and lifecycle hooks.",
+          "commands.mount.label":"Mount tools", "commands.mount.description":"Lease tools in direct or relay mode",
+          "commands.unmount.label":"Unmount tools", "commands.unmount.description":"Stop renewal and revoke the tool lease"
+        }}
+      }
+    }
+  }
+}

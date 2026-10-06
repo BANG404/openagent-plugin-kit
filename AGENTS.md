@@ -1,7 +1,8 @@
 # OpenAgent Plugin Kit contributor map
 
 This repository builds Agent Plugins for OpenAgent. It is intentionally small:
-three skills, a set of starter templates, and two scripts.
+authoring Skills, starter templates, validation scripts and an installable
+development workflow.
 
 ## Route the task before editing
 
@@ -11,6 +12,7 @@ three skills, a set of starter templates, and two scripts.
 | Add or change a starter template | `skills/openagent-plugin-templates/SKILL.md` |
 | Publish a package or a release asset | `skills/openagent-plugin-releasing/SKILL.md` |
 | Change scaffold or validation rules | `scripts/lib/plugin-spec.mjs` and `docs/plugin-format.md` |
+| Change development loop, commands, test gates or Runtime acceptance | `skills/openagent-plugin-development/SKILL.md` and `docs/development-workflow.md` |
 
 ## Boundaries
 
@@ -28,9 +30,10 @@ three skills, a set of starter templates, and two scripts.
   stops describing a real loader rule is worse than no fixture.
 - Every directory under `templates/` must be a complete, valid package that
   `bun run validate --all` accepts without warnings.
-- The repository root is itself a valid package. Do not add root files that the
-  loader would read as components: only `plugin.json`, `skills/`, and `mcp.json`
-  are components, and every `skills/` child must be a valid Skill.
+- The repository root is itself the development plugin. Its manifest, Skills,
+  MCP server and continuation hook must stay valid. Every `skills/` child must
+  be a valid Skill. Qualification is byte-bound and waits for developer acceptance;
+  it never authorizes publication or access to installed release state.
 - Never write to a developer's `~/.openagent` state from a template, script, or
   test. Use a temporary directory.
 - The kit's parity with the loader is a review-and-table guarantee, not a

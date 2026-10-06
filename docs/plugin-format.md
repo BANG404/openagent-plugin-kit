@@ -150,6 +150,10 @@ An invalid server entry is skipped without disabling its siblings.
 
 ### MCP mounting mode
 
+For command/script/hook-controlled session leases and periodic renewal, read
+[dynamic MCP mounting](mcp-lifecycle.md). Transport declarations stay static;
+leases change tool availability and mode through the authenticated Host Bridge.
+
 Set `extensions.openagent.mcp_tool_mode` to `direct` (default) for immediate
 model availability or `relay` for discovery and mounting through `load_tool`.
 Optional `mcp_tool_modes` maps names from `mcp.json` to overrides, for example
