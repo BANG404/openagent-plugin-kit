@@ -104,9 +104,21 @@ try {
         return result.structuredContent;
       };
       // Wait for discovery only; never retry a submitted slash command.
+      // Settings refresh can expose cached native-call definitions before its
+      // replacement connection is ready for the Agent's assembled catalog.
+      // Require successive probes across a settling interval before submission.
+      let discovered = false;
       for (;;) {
-        try { await operation('call_agent_plugin_tool', { plugin_id: 'openagent-plugin-kit', tool_name: 'development_status', arguments: { _openagent: context } }); break; }
-        catch (error) { if (Date.now() >= deadline) throw error; await new Promise(resolve => setTimeout(resolve, 100)); }
+        try {
+          await operation('call_agent_plugin_tool', { plugin_id: 'openagent-plugin-kit', tool_name: 'development_status', arguments: { _openagent: context } });
+          if (discovered) break;
+          discovered = true;
+          await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (error) {
+          discovered = false;
+          if (Date.now() >= deadline) throw error;
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
       }
       await request(`/api/conversations/${conversation.conv_id}/runs`, { text: '/openagent-plugin-kit:create ' + JSON.stringify({ goal: 'Build and behavior-test a finite arithmetic plugin from the public minimal template repository, with real Runtime installation and developer acceptance', max_iterations: 5 }), user_message_id: randomUUID(), assistant_message_id: randomUUID() });
       let state;
