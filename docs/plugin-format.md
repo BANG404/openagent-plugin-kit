@@ -1,5 +1,8 @@
 # Agent Plugin package format
 
+Persistent inline components use [conversation UI](conversation-ui.md), with
+`extensions.openagent.ui_components` and the shared checkpoint-backed Host Bridge.
+
 This is the OpenAgent-side reference for the portable Agent Plugins 1.0.0
 package format. It matches the rules the runtime loader enforces; when the two
 disagree, the runtime wins and this document is the bug.

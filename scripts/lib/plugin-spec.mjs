@@ -356,6 +356,7 @@ function inspectExtensions(root, report, openagent) {
     "capabilities",
     "commands",
     "message_policies",
+    "ui_components",
     "sidebar",
     "automation",
     "daemon",
@@ -373,6 +374,25 @@ function inspectExtensions(root, report, openagent) {
   }
 
   const capabilities = stringArray(openagent.capabilities);
+  if (openagent.ui_components !== undefined) {
+    const seen = new Set();
+    if (!Array.isArray(openagent.ui_components)) {
+      push(report, "warning", "Disabled conversation UI: ui_components must be an array");
+    } else {
+      openagent.ui_components.forEach((component, index) => {
+        if (!isPlainObject(component) || unknownKeys(component, ["id", "version", "title", "entry"]).length ||
+            !isPluginName(component.id) || component.version !== 1 ||
+            typeof component.title !== "string" || !component.title.trim() ||
+            !isComponentPath(component.entry) || !/\.(html|htm)$/.test(component.entry) || seen.has(component.id)) {
+          push(report, "warning", `Skipped conversation UI component ${index}: invalid id, version, title or entry`);
+          return;
+        }
+        seen.add(component.id);
+        const resolved = resolveContainedFile(root, component.entry);
+        if (!resolved.ok) push(report, "warning", `Skipped conversation UI component ${index}: ${resolved.reason}`);
+      });
+    }
+  }
   if (openagent.compatibility !== undefined) {
     const compatibility = openagent.compatibility;
     const range = compatibility?.plugin_protocol;

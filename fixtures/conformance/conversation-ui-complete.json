@@ -1,0 +1,6 @@
+{
+  "description": "conversation components declare a contained HTML entry and version",
+  "openagent": {"ui_components": [{"id":"status","version":1,"title":"Status","entry":"ui/status.html"}]},
+  "files": {"ui/status.html":"<main>Status</main>"},
+  "expect": {"valid":true,"clean":true}
+}

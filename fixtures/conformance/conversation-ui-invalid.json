@@ -1,0 +1,5 @@
+{
+  "description": "conversation component paths cannot escape the package",
+  "openagent": {"ui_components": [{"id":"status","version":1,"title":"Status","entry":"../status.html"}]},
+  "expect": {"valid":false,"diagnosticCounts":{"warning":1}}
+}

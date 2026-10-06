@@ -16,6 +16,20 @@ function response(result, ok = true, status = 200) {
 }
 
 describe("OpenAgent host bridge client", () => {
+  test("conversation UI probes support and retains explicit scope, identity and JSON props", async () => {
+    const requests=[];
+    const host=createHostClient({environment:{OPENAGENT_PLUGIN_HOST_URL:"http://127.0.0.1:1234/v1/execute",OPENAGENT_PLUGIN_HOST_TOKEN:"secret",OPENAGENT_PLUGIN_ID:"example"},fetch:async (_url,init)=>{
+      requests.push(JSON.parse(init.body));return response({version:1});
+    }});
+    await host.conversation.ui.capabilities();
+    const ui={version:1,component:"plugin:example:counter",props:{count:2},fallback:"Count: 2"};
+    await host.conversation.ui.set({convId:"conv",branchId:"branch",id:"counter",ui});
+    expect(requests).toEqual([
+      {operation:"conversation.ui.capabilities",args:{plugin_id:"example"}},
+      {operation:"conversation.ui.set",args:{conv_id:"conv",branch_id:"branch",id:"counter",ui,plugin_id:"example"}},
+    ]);
+    expect(()=>host.conversation.ui.set({convId:"conv",id:"counter",ui})).toThrow("branch_id");
+  });
   test("the full-kit template carries the same capability client", () => {
     expect(readFileSync(new URL("../templates/full-kit/lib/openagent-host.mjs", import.meta.url), "utf8")).toBe(readFileSync(new URL("../lib/openagent-host.mjs", import.meta.url), "utf8"));
   });

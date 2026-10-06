@@ -1,5 +1,9 @@
 # OpenAgent host bridge
 
+`conversation.ui.capabilities` and `conversation.ui.set` are optional operations
+for [persistent conversation components](conversation-ui.md), available through
+`host.conversation.ui`. Detect support before submitting UI to older Runtimes.
+
 Every enabled plugin process receives these environment variables:
 
 - `OPENAGENT_PLUGIN_HOST_URL`

@@ -28,3 +28,11 @@ client's capability modules from package code when you need to create a child,
 wake an Agent, inspect a branch, list roles, or emit progress. The Runtime has
 no Graph/Goal/Groups implementation to register; those workflows belong in the
 package.
+# Persistent conversation UI
+
+The `counter` component demonstrates scoped context and saving its own props.
+From a plugin process with conversation and branch context, probe
+`host.conversation.ui.capabilities()` and then call `host.conversation.ui.set`
+with `id: "counter"`, `component: "plugin:openagent-plugin-template-full-kit:counter"`,
+`version: 1`, `props: {count: 0}` and a text fallback. See
+`../../docs/conversation-ui.md` for the complete contract.

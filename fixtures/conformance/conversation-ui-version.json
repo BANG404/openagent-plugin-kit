@@ -1,0 +1,6 @@
+{
+  "description": "unsupported component versions are disabled",
+  "openagent": {"ui_components": [{"id":"status","version":2,"title":"Status","entry":"ui/status.html"}]},
+  "files": {"ui/status.html":"<main>Status</main>"},
+  "expect": {"valid":false,"diagnosticCounts":{"warning":1}}
+}

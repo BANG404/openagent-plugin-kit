@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "openagent-plugin-template-full-kit",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Reference template containing every Agent Plugin component OpenAgent supports.",
   "license": "MIT",
   "keywords": [
@@ -49,6 +49,9 @@
             "theme"
           ]
         }
+      ],
+      "ui_components": [
+        {"id":"counter","version":1,"title":"Saved counter","entry":"ui/counter.html"}
       ],
       "automation": [
         {

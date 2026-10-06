@@ -15,6 +15,10 @@ package is data those components reference by package-relative path.
 Read `docs/plugin-format.md` for the field-by-field reference before changing a
 manifest. Prefer `templates/` over writing a manifest from scratch.
 
+For inline checkpoint-backed components, read `docs/conversation-ui.md` and
+declare contained `ui_components`; use `host.conversation.ui.set` from processes
+and the scoped state message from frames. Never inject executable HTML as chat text.
+
 Apply [version ownership](../../docs/publishing.md#version-ownership) during every
 package change, including Skills and templates. Update the source version and
 verified protocol declaration before collecting acceptance evidence. Use
