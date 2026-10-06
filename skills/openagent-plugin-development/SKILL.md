@@ -7,6 +7,14 @@ metadata:
 
 # Develop and qualify a plugin
 
+This workflow belongs to Plugin Developer (`openagent-plugin-kit`), whose
+source is `plugins/openagent-plugin-kit/` in OpenAgent. Message Board
+(`message-board`) is a separate collaboration package. Use each package's
+manifest and repository as its identity; never infer identity from an old folder.
+Resolve generated plugin destinations from the active project: use its established
+plugin directory, or `plugin/<package-id>/` if it has none. Keep candidates distinct
+from this tooling package and collect qualification evidence at their final path.
+
 Read `docs/development-workflow.md` for tools, templates, Runtime configuration,
 continuation and acceptance boundaries. Read the authoring and templates Skills
 before writing a package and the release Skill only when publication is requested.

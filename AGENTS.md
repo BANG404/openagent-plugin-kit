@@ -4,6 +4,13 @@ This repository builds Agent Plugins for OpenAgent. It is intentionally small:
 authoring Skills, starter templates, validation scripts and an installable
 development workflow.
 
+The root package is Plugin Developer / 插件开发助手 (`openagent-plugin-kit`).
+Message Board / 留言板 (`message-board`, `BANG404/message-board`) is an independent
+collaboration plugin. Identify packages using their manifest ID and repository,
+never a legacy checkout folder name. In OpenAgent, source checkouts belong at
+`plugins/<package-id>/`; generated candidates use the active project's established
+plugin directory, falling back to `plugin/<package-id>/` when none exists.
+
 ## Route the task before editing
 
 | Intent | Read first |

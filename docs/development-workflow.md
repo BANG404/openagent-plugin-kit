@@ -1,6 +1,10 @@
 # Plugin development workflow
 
-Install the kit directory as an ordinary plugin. It contributes its authoring,
+Install Plugin Developer (`openagent-plugin-kit`) as an ordinary plugin from
+the active project's `plugins/openagent-plugin-kit/` checkout in OpenAgent.
+It is independent of Message Board (`message-board`); that package's channel
+and message tools do not implement this development workflow.
+The kit contributes its authoring,
 template, release and development Skills, a direct MCP development server, slash
 commands, and a Stop hook. It contains no Runtime-specific plugin implementation.
 

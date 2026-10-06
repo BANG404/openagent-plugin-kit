@@ -1,4 +1,24 @@
-# OpenAgent Plugin Kit
+# Plugin Developer / 插件开发助手
+
+**Plugin Developer** is the installable development assistant shipped by the
+**OpenAgent Plugin Kit** repository. Its stable package ID is
+`openagent-plugin-kit`; its commands start with `/openagent-plugin-kit:`.
+
+| Plugin | Stable ID | Project source | Purpose |
+| --- | --- | --- | --- |
+| Plugin Developer / 插件开发助手 | `openagent-plugin-kit` | `plugins/openagent-plugin-kit/` | Create, implement, test and qualify other plugins |
+| Message Board / 留言板 | `message-board` | `plugins/message-board/` | Persist channels, messages, threads and subscriptions for agent collaboration |
+
+These are independent packages and Git repositories. Message Board is published
+at [BANG404/message-board](https://github.com/BANG404/message-board). Install,
+update and uninstall each package by its own ID; their `PLUGIN_DATA` directories
+are separate. An old checkout name mentioning both packages does not identify
+either package. In another project, use its existing plugin directory, or
+`plugin/<package-id>/` when it has no convention. Resolve paths from the current
+project root.
+
+插件开发助手用于开发和验收其他插件；留言板用于智能体之间的持久化消息协作。
+两者的源码、发布仓库、插件 ID 和数据目录独立，不能互相替换。
 
 A standalone repository for building [Agent Plugins](https://agent-plugins.org/)
 1.0.0 packages that OpenAgent installs. The installable kit includes a plugin
@@ -27,15 +47,21 @@ or a JSON specification naming Skills and a template repository; see
 - Node.js for installed MCP servers, portable commands and hooks; Git for
   repository templates, and a selected OpenAgent Runtime server for acceptance.
 - OpenAgent to install and run a generated package.
+- Development commands require a Runtime with per-execution Stop-hook
+  `execution_id`, version-one MCP lease operations, portable JavaScript command
+  launches, and the server's `--control-file` option. The v1.2.0 workflow was
+  qualified against SDK revision
+  `9cad6a4e178d9d7f9866120c02e2ba31645b3cd6`; older installed runtimes lacking
+  these capabilities must be updated. See `docs/development-workflow.md`.
 
 ## Quick start
 
 ```bash
-# Scaffold a package into the current directory
-bun scripts/new-plugin.mjs my-plugin --template skill-pack
+# From this kit checkout, scaffold under the current project's plugin directory
+bun scripts/new-plugin.mjs my-plugin --template skill-pack --dir <project-root>/plugins
 
 # Validate one package, or this repository and every bundled template
-bun scripts/validate-plugin.mjs ../my-plugin
+bun scripts/validate-plugin.mjs <project-root>/plugins/my-plugin
 bun scripts/validate-plugin.mjs --all
 
 # Script tests
