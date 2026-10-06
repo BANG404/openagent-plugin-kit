@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
 
 import {
   OpenAgentHostError,
@@ -15,6 +16,38 @@ function response(result, ok = true, status = 200) {
 }
 
 describe("OpenAgent host bridge client", () => {
+  test("the full-kit template carries the same capability client", () => {
+    expect(readFileSync(new URL("../templates/full-kit/lib/openagent-host.mjs", import.meta.url), "utf8")).toBe(readFileSync(new URL("../lib/openagent-host.mjs", import.meta.url), "utf8"));
+  });
+  test("embedding preserves texts and validates ordered vector metadata", async () => {
+    const requests = [];
+    let malformed = false;
+    const host = createHostClient({environment: {
+      OPENAGENT_PLUGIN_HOST_URL: "http://127.0.0.1:1234/v1/execute",
+      OPENAGENT_PLUGIN_HOST_TOKEN: "secret", OPENAGENT_PLUGIN_ID: "example",
+    }, fetch: async (_url, init) => {
+      const request = JSON.parse(init.body);
+      requests.push(request);
+      const metadata = {version: 1, model_id: "test-model", model_version: "1", dimensions: 2};
+      return response(request.operation === "embedding.status"
+        ? {...metadata, supported: true, ready: false, max_texts: 32, max_text_bytes: 8192, max_total_bytes: 65536}
+        : {...metadata, vectors: malformed ? [[1]] : [[1, 0], [0, 1]]});
+    }});
+    expect((await host.embedding.status()).ready).toBe(false);
+    expect((await host.embedding.embed([" first ", "中文"])).vectors).toEqual([[1, 0], [0, 1]]);
+    expect(requests[1]).toEqual({operation: "embedding.embed", args: {plugin_id: "example", texts: [" first ", "中文"]}});
+    malformed = true;
+    await expect(host.embedding.embed(["one", "two"])).rejects.toThrow("unsupported host embedding inference");
+    await expect(host.embedding.embed([" "])).rejects.toThrow("non-blank");
+    await expect(host.embedding.embed([])).rejects.toThrow("non-empty");
+  });
+  test("embedding rejects unknown versions and surfaces unsupported Runtime errors", async () => {
+    const environment = {OPENAGENT_PLUGIN_HOST_URL: "http://127.0.0.1:1234/v1/execute", OPENAGENT_PLUGIN_HOST_TOKEN: "secret", OPENAGENT_PLUGIN_ID: "example"};
+    const incompatible = createHostClient({environment, fetch: async () => response({version: 2})});
+    await expect(incompatible.embedding.status()).rejects.toThrow("unsupported host embedding status");
+    const old = createHostClient({environment, fetch: async () => response("cannot call host operation 'embedding.status'", false, 400)});
+    await expect(old.embedding.status()).rejects.toMatchObject({name: "OpenAgentHostError", status: 400, operation: "embedding.status"});
+  });
   test("locale is read live and rejects unknown response versions", async () => {
     let locale = "zh";
     let version = 1;

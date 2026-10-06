@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "openagent-plugin-template-slash-commands",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Starter template with a portable slash command backed by a package script.",
   "license": "MIT",
   "keywords": [
@@ -11,6 +11,7 @@
   ],
   "extensions": {
     "openagent": {
+      "compatibility": {"plugin_protocol": {"min": 1, "max": 1}},
       "capabilities": [
         "commands"
       ],

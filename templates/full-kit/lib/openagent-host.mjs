@@ -357,7 +357,41 @@ export function createHostClient({
       return result.locale;
     },
   };
-  return Object.freeze({ pluginId: identity, call, conversation, branch, agent, roles, event, locale });
+  const mcp = {
+    mount({ server, mode, ttl_secs, ttlSecs } = {}) {
+      if (!['direct', 'relay'].includes(mode)) throw new TypeError('MCP mount mode must be direct or relay');
+      const ttl = ttl_secs ?? ttlSecs;
+      if (!Number.isInteger(ttl) || ttl < 1 || ttl > 86400) throw new TypeError('MCP mount ttl_secs must be 1..86400');
+      return call('mcp.mount', { server: requiredText(server, 'server'), mode, ttl_secs: ttl });
+    },
+    unmount(server) { return call('mcp.unmount', { server: requiredText(server, 'server') }); },
+    status(server) { return call('mcp.status', server === undefined ? {} : { server: requiredText(server, 'server') }); },
+  };
+  const embedding = {
+    async status() {
+      const result = await call("embedding.status");
+      if (result?.version !== 1 || result.supported !== true || typeof result.ready !== "boolean" ||
+          typeof result.model_id !== "string" || typeof result.model_version !== "string" ||
+          !Number.isInteger(result.dimensions) || result.dimensions < 1 ||
+          ![result.max_texts, result.max_text_bytes, result.max_total_bytes].every(value => Number.isInteger(value) && value > 0)) {
+        throw new OpenAgentHostError("unsupported host embedding status response", {operation: "embedding.status"});
+      }
+      return result;
+    },
+    async embed(texts) {
+      if (!Array.isArray(texts) || !texts.length || texts.some(text => typeof text !== "string" || !text.trim())) {
+        throw new TypeError("embedding texts must be a non-empty array of non-blank strings");
+      }
+      const result = await call("embedding.embed", { texts });
+      if (result?.version !== 1 || typeof result.model_id !== "string" || typeof result.model_version !== "string" ||
+          !Number.isInteger(result.dimensions) || result.dimensions < 1 || !Array.isArray(result.vectors) ||
+          result.vectors.length !== texts.length || result.vectors.some(vector => !Array.isArray(vector) || vector.length !== result.dimensions || vector.some(value => typeof value !== "number" || !Number.isFinite(value)))) {
+        throw new OpenAgentHostError("unsupported host embedding inference response", {operation: "embedding.embed"});
+      }
+      return result;
+    },
+  };
+  return Object.freeze({ pluginId: identity, call, conversation, branch, agent, roles, event, locale, mcp, embedding });
 }
 
 /** The longer name is used by reference templates; keep both spellings stable. */

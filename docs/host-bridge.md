@@ -34,9 +34,48 @@ The modules are:
 - `roles.list`
 - `event.emit`
 - `locale.get`
+- `embedding.status/embed` (optional local inference, described below)
 - `mcp.mount/unmount/status` (see [dynamic MCP mounting](mcp-lifecycle.md))
 - `host.call('runtime.permissions')` returns the version-one live session
   permission profile used by [isolated development acceptance](development-workflow.md).
+
+## Local embedding
+
+The optional embedding capability reuses the Runtime's already-loaded local
+encoder. It neither installs model resources nor calls a provider. It requires
+the existing package-scoped bridge token and a currently installed, enabled,
+compatible package, with no additional computer-access grant.
+
+```js
+const status = await host.embedding.status();
+if (!status.ready) throw new Error("Prepare the embedding model in OpenAgent setup");
+const result = await host.embedding.embed(["a small cat", "a document to index"]);
+// result.vectors follows input order; persist model_id/model_version/dimensions
+// with your index and rebuild it when this identity changes.
+```
+
+Wire operations are `embedding.status` with `{}` and `embedding.embed` with
+`{texts: string[]}`. Both return `version: 1`, `model_id`, `model_version` and
+`dimensions`. Status additionally returns `supported: true`, `ready`, `max_texts`,
+`max_text_bytes` and `max_total_bytes`; inference returns `vectors: number[][]`.
+The current encoder is `all-MiniLM-L6-v2-q`, resource version `1`, with 384
+dimensions. A batch contains 1..32 non-blank texts, at most 8192 UTF-8 bytes each
+and 65536 UTF-8 bytes total. Text is passed unchanged to the existing tokenizer;
+its token truncation remains in effect, so chunk long documents before embedding.
+
+The Runtime allows one plugin inference worker at a time and immediately rejects
+busy requests; retry with a bounded backoff. A missing model returns an actionable
+not-ready error without downloading or mutating setup. Cancellation cannot release
+the worker slot before inference finishes. Input and vectors are not persisted
+by the bridge. Package-owned indexes belong in `PLUGIN_DATA`.
+
+Older protocol-1 Runtimes can reject `embedding.status` as an unknown operation.
+Catch that error and report that this optional capability needs a newer Runtime;
+do not mistake a missing model for unsupported operations or silently send text
+to a remote provider. Existing packages continue to load under protocol 1, and
+new packages must detect this capability independently of protocol admission.
+
+## Lifecycle context
 
 Hook events include `execution_id`: one opaque identity per Runtime execution,
 shared by every hook in that execution and distinct on continuation or resume.

@@ -23,6 +23,9 @@ are ordinary plugins and do not register a Runtime implementation.
 
 ## Prepare the package
 
+Follow [version ownership](../../docs/publishing.md#version-ownership). Source and
+packaged versions are identical; Runtime publication does not infer a bump.
+
 1. Set `repository` to the published HTTPS GitHub URL.
 2. Bump `version` using `MAJOR.MINOR.PATCH`. The update check follows SemVer
    precedence when both versions parse as SemVer, so a release outranks its own

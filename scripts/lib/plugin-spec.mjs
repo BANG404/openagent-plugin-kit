@@ -362,6 +362,7 @@ function inspectExtensions(root, report, openagent) {
     "i18n",
     "mcp_tool_mode",
     "mcp_tool_modes",
+    "compatibility",
   ]);
   for (const key of unread) {
     push(
@@ -372,6 +373,15 @@ function inspectExtensions(root, report, openagent) {
   }
 
   const capabilities = stringArray(openagent.capabilities);
+  if (openagent.compatibility !== undefined) {
+    const compatibility = openagent.compatibility;
+    const range = compatibility?.plugin_protocol;
+    if (!isPlainObject(compatibility) || unknownKeys(compatibility, ["plugin_protocol"]).length ||
+        !isPlainObject(range) || unknownKeys(range, ["min", "max"]).length ||
+        !Number.isInteger(range.min) || !Number.isInteger(range.max) || range.min < 1 || range.min > range.max || range.max > 0xffffffff) {
+      push(report, "error", "extensions.openagent.compatibility requires only plugin_protocol with integer bounds 1 <= min <= max <= 4294967295");
+    }
+  }
   if (openagent.mcp_tool_mode !== undefined && !["direct", "relay"].includes(openagent.mcp_tool_mode)) {
     push(report, "error", "extensions.openagent.mcp_tool_mode must be 'direct' or 'relay'");
   }

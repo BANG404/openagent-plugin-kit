@@ -15,6 +15,12 @@ package is data those components reference by package-relative path.
 Read `docs/plugin-format.md` for the field-by-field reference before changing a
 manifest. Prefer `templates/` over writing a manifest from scratch.
 
+Apply [version ownership](../../docs/publishing.md#version-ownership) during every
+package change, including Skills and templates. Update the source version and
+verified protocol declaration before collecting acceptance evidence. Use
+[Host Bridge embedding](../../docs/host-bridge.md#local-embedding) for optional
+local vector inference; detect support and readiness before using it.
+
 OpenAgent's product-owned standard packages are published at:
 
 - https://github.com/BANG404/openagent-chat-groups

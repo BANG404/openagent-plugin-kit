@@ -74,6 +74,20 @@ Publish increments that SemVer understands. A scheme like `2026.09` still
 compares, but it is compared as a number, so a release you intend to supersede
 must not depend on punctuation to sort above a lower one.
 
+### Plugin protocol compatibility
+
+`extensions.openagent.compatibility` accepts only `plugin_protocol`, an object
+containing positive unsigned 32-bit `min` and `max` with `min <= max`. Unknown
+keys, missing bounds and malformed ranges reject the manifest. The declaration
+is independent of the portable `$schema` and package `version`. When omitted,
+the Runtime treats it as `{ "min": 1, "max": 1 }`; this baseline does not advance
+when Runtime upgrades. The validator checks structure, while installation checks
+the target Runtime's protocol. Declare only ranges verified against those Runtimes.
+
+Optional Host Bridge capabilities such as embedding require runtime detection;
+protocol admission alone does not prove they exist. See [Host Bridge](host-bridge.md)
+and [version ownership](publishing.md#version-ownership).
+
 ## Skills
 
 Skills are discovered only from immediate child directories of `skills/` that

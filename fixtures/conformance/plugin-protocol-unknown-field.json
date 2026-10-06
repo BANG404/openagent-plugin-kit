@@ -1,0 +1,5 @@
+{
+  "description": "unknown compatibility keys reject the manifest",
+  "openagent": { "compatibility": { "plugin_protocol": { "min": 1, "max": 1 }, "typo": true } },
+  "expect": { "valid": false, "diagnostics": [{ "level": "error", "contains": "integer bounds" }] }
+}

@@ -1,0 +1,5 @@
+{
+  "description": "reversed protocol bounds reject the manifest",
+  "openagent": { "compatibility": { "plugin_protocol": { "min": 2, "max": 1 } } },
+  "expect": { "valid": false, "diagnostics": [{ "level": "error", "contains": "integer bounds" }] }
+}

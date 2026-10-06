@@ -53,6 +53,12 @@ The MCP tools template demonstrates `relay` mounting through `load_tool`;
 the full kit demonstrates `direct` mounting. Change the manifest mode to fit
 the package and translate i18n `display_name` without changing routing IDs.
 
+Templates carry an explicit verified plugin protocol range and the full kit's
+Host Bridge client includes optional local embedding. Probe support/readiness
+before inference as described in `docs/host-bridge.md#local-embedding`; older
+protocol-1 Runtimes can reject the operation. Keep the full kit client identical
+to `lib/openagent-host.mjs` and apply source version ownership to template edits.
+
 After scaffolding, complete every `TODO` the script reports and rename anything
 that still carries the template identity:
 

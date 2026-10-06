@@ -1,0 +1,5 @@
+{
+  "description": "explicit verified protocol ranges are accepted independently of the target Runtime",
+  "openagent": { "compatibility": { "plugin_protocol": { "min": 1, "max": 2 } } },
+  "expect": { "valid": true, "clean": true }
+}

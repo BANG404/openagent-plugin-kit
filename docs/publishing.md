@@ -31,6 +31,23 @@ an update, so the URL is what makes updates discoverable.
   stable release, so a release marked prerelease is never a candidate — which
   is a separate decision from how its `version` string compares.
 
+### Version ownership
+
+Determine and update the source `plugin.json` version while implementing a
+package change. Compatible fixes advance patch, compatible capabilities advance
+minor, and incompatible package APIs advance major. Bundled Skills and other
+archived files also change the package. Update `package.json` when applicable.
+Advance above existing manual `v*` and automation `plugin-v*` stable versions;
+published tags and archives are immutable. Runtime publication packages the
+declared version verbatim and rejects changed source that reuses a version.
+
+Evaluate plugin protocol compatibility separately. Contract-preserving changes
+keep the protocol; incompatible contract changes update Runtime's protocol and
+affected package ranges with behavior coverage in the same delivery. Detect
+optional capabilities before using them, and handle older Runtimes explicitly.
+Do not widen `compatibility.plugin_protocol` without verification. Package data
+migrations remain package-owned and need recovery coverage.
+
 ## Release assets
 
 Attach the packaged plugin to the GitHub release as a single archive. OpenAgent

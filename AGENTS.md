@@ -43,6 +43,10 @@ plugin directory, falling back to `plugin/<package-id>/` when none exists.
   it never authorizes publication or access to installed release state.
 - Never write to a developer's `~/.openagent` state from a template, script, or
   test. Use a temporary directory.
+- Source package versions and verified protocol ranges follow
+  `docs/publishing.md#version-ownership`; Runtime publishing validates rather
+  than calculates them. Optional local embedding uses the shared Host Bridge,
+  following `docs/host-bridge.md#local-embedding`.
 - The kit's parity with the loader is a review-and-table guarantee, not a
   mechanism guarantee: this repository is public and the runtime's tests cannot
   depend on it, so nothing here can fail the SDK build. The runtime loader is
