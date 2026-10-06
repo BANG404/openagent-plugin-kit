@@ -79,6 +79,9 @@ The server also stops if that file disappears. The default desktop stdin control
 is unchanged. Output overflow fails the gate and terminates the child.
 Shutdown signaling and cleanup failures also fail acceptance; termination is
 still attempted and the failed report and bounded logs are retained.
+The Agent workflow fixture observes authenticated Runtime `chat-done` events
+before submitting acceptance; saved qualification can precede Stop hook
+completion and release of the conversation run guard.
 
 Windows repository checkout selects Git's OpenSSL HTTPS backend for that
 invocation because restricted tokens cannot acquire Schannel credentials.

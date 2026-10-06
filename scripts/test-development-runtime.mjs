@@ -79,10 +79,13 @@ const model = createServer(async (request, response) => {
 await new Promise(resolve => model.listen(0, '127.0.0.1', resolve));
 const profile = { enforcement: 'managed', network: 'enabled', file_system: { entries: [{ path: { kind: 'host_root' }, access: 'read' }, { path: { kind: 'workspace' }, access: 'write' }] } };
 let conversation;
+const eventAbort = new AbortController();
+let eventsTask;
+const terminalEvents = [];
 try {
   const report = await runtimeAcceptance({ executable: path.resolve(executable), packageDirectory: kitRoot, workspace, outputDirectory: root,
     timeoutMs: 180000, permissionProfile: profile,
-    verify: async ({ request, operation, deadline, home }) => {
+    verify: async ({ request, operation, subscribe, deadline, home }) => {
       for (const entry of steps.slice(0, 3)) {
         entry.args.cmd = 'node read-skill.mjs';
         entry.args.env = { OPENAGENT_TEST_SKILL_FILE: path.join(home, 'plugins', 'openagent-plugin-kit', 'skills', entry.skill, 'SKILL.md') };
@@ -98,6 +101,22 @@ try {
       const workspaces = await request('/api/workspaces');
       conversation = await request('/api/conversations', { workspace_id: workspaces[0].id });
       const context = { conversation_id: conversation.conv_id, branch_id: conversation.branch_id, workspace };
+      const stream = await subscribe('/api/events', eventAbort.signal);
+      eventsTask = (async () => {
+        const decoder = new TextDecoder(); let buffer = '';
+        for await (const chunk of stream) {
+          buffer += decoder.decode(chunk, { stream: true });
+          let boundary;
+          while ((boundary = buffer.indexOf('\n\n')) >= 0) {
+            const packet = buffer.slice(0, boundary); buffer = buffer.slice(boundary + 2);
+            const data = packet.split('\n').find(line => line.startsWith('data:'));
+            if (!data) continue;
+            const event = JSON.parse(data.slice(5).trim());
+            if (event.name === 'chat-done' && event.payload?.conv_id === conversation.conv_id) terminalEvents.push(event);
+          }
+          if (buffer.length > 1024 * 1024) throw new Error('Runtime event exceeded fixture limit');
+        }
+      })().catch(error => { if (!eventAbort.signal.aborted) fixtureFailure = error; });
       const status = async () => {
         const result = await operation('call_agent_plugin_tool', { plugin_id: 'openagent-plugin-kit', tool_name: 'development_status', arguments: { _openagent: context } });
         if (result.isError) throw new Error(result.content[0].text);
@@ -141,8 +160,13 @@ try {
       assert.equal(state.evidence.runtime.permission_profile.network, 'enabled');
       assert.equal(await readFile(path.join(workspace, 'candidate', 'arithmetic.mjs'), 'utf8'), arithmetic);
       assert.equal(skillReads.size, 3, 'The Agent must read the installed development, authoring and templates Skills');
-      // Wait for finalization to release the run guard before developer input.
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Only chat-done is emitted after releasing the conversation run guard.
+      // Qualification and durable final phase can precede Stop hook completion.
+      while (terminalEvents.length < state.iteration + 1) {
+        if (fixtureFailure) throw fixtureFailure;
+        if (Date.now() >= deadline) throw new Error('Qualified turn did not release its run guard');
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
       const qualifiedRequests = modelRequests;
       await request(`/api/conversations/${conversation.conv_id}/runs`, { text: '/openagent-plugin-kit:accept', user_message_id: randomUUID(), assistant_message_id: randomUUID() });
       for (;;) {
@@ -150,11 +174,16 @@ try {
         if (Date.now() >= deadline) throw new Error('Developer acceptance was not recorded');
         await new Promise(resolve => setTimeout(resolve, 100));
       }
-      await new Promise(resolve => setTimeout(resolve, 500));
+      while (terminalEvents.length < state.iteration + 2) {
+        if (fixtureFailure) throw fixtureFailure;
+        if (Date.now() >= deadline) throw new Error('Acceptance turn did not finalize');
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
       assert.equal(modelRequests, qualifiedRequests + 1, 'Acceptance must not schedule another development run');
-      await writeFile(path.join(root, 'agent-workflow.json'), JSON.stringify({ conversation, home, modelRequests, calls, skillReads: [...skillReads], state }, null, 2));
+      await writeFile(path.join(root, 'agent-workflow.json'), JSON.stringify({ conversation, home, modelRequests, calls, skillReads: [...skillReads], terminalEvents, state }, null, 2));
+      eventAbort.abort(); await eventsTask;
       return [{ kind: 'agent_workflow', passed: true, conversation_id: conversation.conv_id, model_requests: modelRequests, continuation_turns: state.iteration, candidate: state.package }];
     } });
   console.log(JSON.stringify({ passed: report.passed, error: report.error, report_path: report.report_path, conversation, step, modelRequests, calls, skillReads: [...skillReads], fixtureFailure: fixtureFailure?.message }));
   assert.equal(report.passed, true, report.error);
-} finally { model.closeAllConnections(); await new Promise(resolve => model.close(resolve)); }
+} finally { eventAbort.abort(); await eventsTask; model.closeAllConnections(); await new Promise(resolve => model.close(resolve)); }
