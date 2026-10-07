@@ -1,0 +1,14 @@
+{
+  "description": "activation matches exact names, not wildcard patterns",
+  "openagent": {
+    "sidebar": [
+      { "id": "panel", "title": "Panel", "entry": "ui/panel.html", "activation_tools": ["group_*"] }
+    ]
+  },
+  "files": { "ui/panel.html": "<!doctype html>\n" },
+  "expect": {
+    "valid": false,
+    "components": { "sidebar": 0 },
+    "diagnostics": [{ "level": "warning", "contains": "activation_tools" }]
+  }
+}

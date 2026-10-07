@@ -343,6 +343,18 @@ down politely.
 | `scope` | no | `global` (default), `workspace`, or `conversation` |
 | `icon` | no | Non-empty when present |
 | `capabilities` | no | Subset of `workspace`, `conversation`, `branch`, `files`, `locale`, `theme` |
+| `activation_tools` | no | 1–64 exact exposed tool names; each matches `[A-Za-z0-9_.-]{1,128}` |
+
+With `activation_tools`, the view is hidden until an assistant tool call on
+the selected conversation branch matches. Live calls activate immediately;
+saved calls restore availability after reload. Text, discovery and sidebar
+tool requests do not activate it. The host opens a newly activated view once
+per branch and preserves later user collapse/tab choices. Without the field,
+the view uses ordinary scope-based availability. Empty/invalid lists disable
+only that view. Match the actual mounted name when MCP name disambiguation is
+required. This optional protocol-1 surface degrades to an unavailable view on
+older loaders, which report the unknown field; tools and package data remain
+usable. Keep tools sufficient to operate without the view.
 
 Entries run as UTF-8 HTML in a sandboxed iframe. The host posts a versioned
 `openagent:sidebar-context` message containing only the fields you declared in

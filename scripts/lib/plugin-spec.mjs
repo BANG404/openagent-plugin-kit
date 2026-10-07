@@ -517,6 +517,7 @@ function inspectExtensions(root, report, openagent) {
           scope: result.value.scope,
           icon: result.value.icon,
           capabilities: entry.capabilities ?? [],
+          ...(entry.activation_tools === undefined ? {} : { activation_tools: entry.activation_tools }),
         });
       });
     }
@@ -647,6 +648,7 @@ function normalizeSidebar(entry) {
     "scope",
     "icon",
     "capabilities",
+    "activation_tools",
   ]);
   if (unknown.length > 0) return { ok: false, reason: `unknown field '${unknown[0]}'` };
   if (!isPluginName(entry.id)) {
@@ -681,6 +683,13 @@ function normalizeSidebar(entry) {
     }
     const invalid = entry.capabilities.find((value) => !SIDEBAR_CAPABILITIES.includes(value));
     if (invalid !== undefined) return { ok: false, reason: `unsupported capability '${invalid}'` };
+  }
+  if (entry.activation_tools !== undefined && (
+    !Array.isArray(entry.activation_tools) ||
+    entry.activation_tools.length < 1 || entry.activation_tools.length > 64 ||
+    entry.activation_tools.some((value) => typeof value !== "string" || !/^[a-zA-Z0-9_.-]{1,128}$/.test(value))
+  )) {
+    return { ok: false, reason: "activation_tools must contain 1-64 exact tool names" };
   }
   return { ok: true, value: { scope, icon } };
 }

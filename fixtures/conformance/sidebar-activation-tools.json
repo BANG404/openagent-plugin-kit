@@ -1,0 +1,19 @@
+{
+  "description": "conditional sidebars preserve exact branch tool activation declarations",
+  "openagent": {
+    "sidebar": [
+      {
+        "id": "panel",
+        "title": "Panel",
+        "entry": "ui/panel.html",
+        "activation_tools": ["create_group", "read-group.v1"]
+      }
+    ]
+  },
+  "files": { "ui/panel.html": "<!doctype html>\n" },
+  "expect": {
+    "valid": true,
+    "components": { "sidebar": 1 },
+    "sidebar": [{ "activation_tools": ["create_group", "read-group.v1"] }]
+  }
+}
