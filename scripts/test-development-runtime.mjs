@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdir, readFile, writeFile, readdir } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, writeFile, readdir } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { runtimeAcceptance } from '../lib/runtime-acceptance.mjs';
@@ -9,10 +9,11 @@ import { kitRoot } from '../lib/development-tools.mjs';
 
 const [executable, outputDirectory] = process.argv.slice(2);
 if (!executable || !outputDirectory) throw new Error('Usage: node scripts/test-development-runtime.mjs <runtime-executable> <evidence-directory>');
-const root = path.join(path.resolve(outputDirectory), 'selfloop-' + randomUUID());
+await mkdir(path.resolve(outputDirectory), { recursive: true });
+const root = await mkdtemp(path.join(path.resolve(outputDirectory), 'w-'));
 const workspace = path.join(root, 'workspace'); await mkdir(workspace, { recursive: true });
 const reader = path.join(workspace, 'read-skill.mjs');
-await writeFile(reader, "import {readFile} from 'node:fs/promises'; process.stdout.write(await readFile(process.env.OPENAGENT_TEST_SKILL_FILE, 'utf8'));\n");
+await writeFile(reader, "import {readFile} from 'node:fs/promises'; process.stdout.write(await readFile(Buffer.from(process.argv[2], 'base64').toString('utf8'), 'utf8'));\n");
 const steps = [
   ...['openagent-plugin-development', 'openagent-plugin-authoring', 'openagent-plugin-templates'].map(name => ({ tool: 'exec_command', skill: name, args: { shell: process.platform === 'win32' ? 'cmd' : 'bash', yield_time_ms: 30000, max_output_tokens: 8000 } })),
   { tool: 'development_scaffold', args: { name: 'candidate', template_repository: 'https://github.com/BANG404/openagent-plugin-kit', template_subdirectory: 'templates/minimal' } },
@@ -44,6 +45,19 @@ const model = createServer(async (request, response) => {
       const result = [...(body.messages ?? [])].reverse().find(message => message.role === 'tool');
       assert(result, 'Missing result for ' + pendingResult.tool);
       const content = typeof result.content === 'string' ? result.content : JSON.stringify(result.content);
+      if (pendingResult.tool === 'exec_command') await writeFile(path.join(root, pendingResult.skill + '-read-result.json'), JSON.stringify({ arguments: pendingResult.args, content }, null, 2));
+      if (pendingResult.tool === 'exec_command') {
+        const terminal = JSON.parse(content.split('\n')[0]);
+        if (terminal.status === 'running') {
+          const poll = body.tools.find(tool => tool.function.name.endsWith('write_stdin'));
+          assert(poll, 'Running skill reads require terminal polling');
+          response.writeHead(200, { 'content-type': 'application/x-ndjson' });
+          response.end(JSON.stringify({ model: 'development-fixture', created_at: new Date().toISOString(), message: { role: 'assistant', content: '', tool_calls: [{ function: { name: poll.function.name, arguments: { session_id: terminal.session_id, chars: '', yield_time_ms: 30000 } } }] }, done: true, done_reason: 'stop' }) + '\n');
+          modelRequests++;
+          return;
+        }
+        assert.equal(terminal.exit_code ?? Number(terminal.status?.split(':')[1]), 0, 'Skill reader must exit successfully: ' + content);
+      }
       const intentionallyFailed = pendingResult.tool === 'development_test' && pendingResult.args.args.includes('process.exit(7)');
       if (pendingResult.tool.startsWith('development_')) {
         let evidence;
@@ -59,7 +73,8 @@ const model = createServer(async (request, response) => {
       pendingResult = undefined;
     }
     for (const message of body.messages ?? []) if (message.role === 'tool') {
-      for (const marker of ['Develop and qualify a plugin', 'Authoring an OpenAgent plugin', 'Scaffolding from the bundled templates']) if (message.content?.includes(marker)) skillReads.add(marker);
+      const content = typeof message.content === 'string' ? message.content : JSON.stringify(message.content);
+      for (const marker of ['Develop and qualify a plugin', 'Authoring an OpenAgent plugin', 'Scaffolding from the bundled templates']) if (content.includes(marker)) skillReads.add(marker);
     }
     modelRequests++;
     const selected = steps[step] ?? { text: 'Developer acceptance recorded.' };
@@ -84,11 +99,10 @@ let eventsTask;
 const terminalEvents = [];
 try {
   const report = await runtimeAcceptance({ executable: path.resolve(executable), packageDirectory: kitRoot, workspace, outputDirectory: root,
-    timeoutMs: 180000, permissionProfile: profile,
+    timeoutMs: 360000, permissionProfile: profile,
     verify: async ({ request, operation, subscribe, deadline, home }) => {
       for (const entry of steps.slice(0, 3)) {
-        entry.args.cmd = 'node read-skill.mjs';
-        entry.args.env = { OPENAGENT_TEST_SKILL_FILE: path.join(home, 'plugins', 'openagent-plugin-kit', 'skills', entry.skill, 'SKILL.md') };
+        entry.args.cmd = 'node read-skill.mjs ' + Buffer.from(path.join(home, 'plugins', 'openagent-plugin-kit', 'skills', entry.skill, 'SKILL.md')).toString('base64');
       }
       const original = await operation('get_settings');
       const config = structuredClone(original);

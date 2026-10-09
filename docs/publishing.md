@@ -73,6 +73,17 @@ executes package code.
 
 ## Release checklist
 
+For accepted creation-workflow candidates, the explicit host CLI
+`bun scripts/publish-qualified.mjs <candidates.json> <owner> <artifact-directory> --publish-public`
+creates public `<owner>/openagent-<manifest-name>` repositories and stable releases.
+Use it only after the operator has authorized those exact names and visibility.
+It uses the host's existing GitHub login; no hook inherits credentials or silently
+publishes. Validation, tests and Runtime evidence must match the current package
+digest and accepted state. It rejects dirty sources, mismatched origins, archive
+byte changes and missing GitHub digests, then downloads each asset and verifies
+its SHA-256. Existing immutable releases are checked, never overwritten. The
+incremental publication.json is the resume record when a network request fails.
+
 1. Bump `version` in `plugin.json`.
 2. Run `bun scripts/validate-plugin.mjs .` and fix every warning.
 3. Install the package locally in OpenAgent and exercise each component.

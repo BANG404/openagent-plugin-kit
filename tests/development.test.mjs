@@ -118,6 +118,16 @@ test('selected packages remain in the active workspace', async () => {
   await writeFile(path.join(environment.PLUGIN_DATA, 'plugin.json'), '{}');
   await expect(call('development_select', { directory: environment.PLUGIN_DATA })).rejects.toThrow('workspace');
 });
+
+test('scaffold uses the final project plugin directory and rejects escapes', async () => {
+  const { call, workspace } = await fixture();
+  await mkdir(path.join(workspace, 'plugins'));
+  const state = await call('development_scaffold', { name: 'candidate', directory: 'plugins/candidate' });
+  expect(state.package).toBe(path.join(workspace, 'plugins', 'candidate'));
+  await expect(call('development_scaffold', { name: 'other', directory: '../other' })).rejects.toThrow('directory');
+  await expect(call('development_scaffold', { name: 'other', directory: 'plugins/candidate' })).rejects.toThrow('name');
+  await expect(call('development_scaffold', { name: 'candidate', directory: 'plugins/candidate' })).rejects.toThrow();
+});
 test('a failed retry clears previous success evidence', async () => {
   const { call } = await fixture();
   await call('development_scaffold', { name: 'candidate' });

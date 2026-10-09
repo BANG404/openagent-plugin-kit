@@ -28,6 +28,9 @@ before writing a package and the release Skill only when publication is requeste
    focused tests, translations and durable author instructions together.
    Follow `docs/publishing.md#version-ownership` before collecting byte-bound
    gate evidence; version and compatibility edits invalidate earlier evidence.
+   For reviewed Claude external plugins, use `development_import_claude` as
+   documented in the workflow; record external prerequisites and qualify the
+   receive/reply path of channel conversions before publication.
 3. Run `development_validate` for the required locales. Fix every diagnostic.
    Run `development_test` with an executable and argv; assert behavior and failure
    recovery. A no-op command is not evidence for the specification.
