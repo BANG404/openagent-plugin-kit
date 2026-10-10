@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "openagent-plugin-kit",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "description": "Create plugins from Skills and templates, implement, test and qualify them with the production Runtime.",
   "license": "MIT",
   "repository": "https://github.com/BANG404/openagent-plugin-kit",
@@ -14,22 +14,73 @@
   ],
   "extensions": {
     "openagent": {
-      "compatibility": {"plugin_protocol": {"min": 1, "max": 1}},
+      "compatibility": {
+        "plugin_protocol": {
+          "min": 1,
+          "max": 1
+        }
+      },
       "capabilities": [
-        "skills", "mcp", "commands", "automation"
+        "skills",
+        "mcp",
+        "commands",
+        "automation"
       ],
       "mcp_tool_mode": "direct",
       "commands": [
-        {"id":"create","label":"Create plugin","description":"Start plugin development and acceptance","argument":"required_text","command":"bin/develop-command.mjs","timeout_secs":30},
-        {"id":"resume","label":"Resume development","description":"Resume the saved development workflow","argument":"none","command":"bin/develop-command.mjs","timeout_secs":30},
-        {"id":"stop","label":"Stop development","description":"Cancel automated development continuation","argument":"none","command":"bin/develop-command.mjs","timeout_secs":30},
-        {"id":"status","label":"Development status","description":"Inspect saved candidate and gate evidence","argument":"none","command":"bin/develop-command.mjs","timeout_secs":30},
-        {"id":"accept","label":"Accept candidate","description":"Record developer acceptance of qualified bytes","argument":"none","command":"bin/develop-command.mjs","timeout_secs":30}
+        {
+          "id": "create",
+          "label": "Create plugin",
+          "description": "Start plugin development and acceptance",
+          "argument": "required_text",
+          "command": "bin/develop-command.mjs",
+          "timeout_secs": 30
+        },
+        {
+          "id": "resume",
+          "label": "Resume development",
+          "description": "Resume the saved development workflow",
+          "argument": "none",
+          "command": "bin/develop-command.mjs",
+          "timeout_secs": 30
+        },
+        {
+          "id": "stop",
+          "label": "Stop development",
+          "description": "Cancel automated development continuation",
+          "argument": "none",
+          "command": "bin/develop-command.mjs",
+          "timeout_secs": 30
+        },
+        {
+          "id": "status",
+          "label": "Development status",
+          "description": "Inspect saved candidate and gate evidence",
+          "argument": "none",
+          "command": "bin/develop-command.mjs",
+          "timeout_secs": 30
+        },
+        {
+          "id": "accept",
+          "label": "Accept candidate",
+          "description": "Record developer acceptance of qualified bytes",
+          "argument": "none",
+          "command": "bin/develop-command.mjs",
+          "timeout_secs": 30
+        }
       ],
-      "automation": [{"id":"development-continuation","event":"stop","command":"bin/develop-hook.mjs","timeout_secs":30}],
+      "automation": [
+        {
+          "id": "development-continuation",
+          "event": "stop",
+          "command": "bin/develop-hook.mjs",
+          "timeout_secs": 30
+        }
+      ],
       "i18n": {
         "supported_locales": [
-          "en", "zh"
+          "en",
+          "zh"
         ],
         "default_locale": "en",
         "translations": {

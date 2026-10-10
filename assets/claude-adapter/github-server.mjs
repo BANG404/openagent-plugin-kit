@@ -10,8 +10,12 @@ const server = new Server({ name: 'github', version: '0.1.0' }, { capabilities: 
 let connection;
 async function connect() {
   if (connection) return connection;
-  const config = JSON.parse(await readFile(path.join(process.env.PLUGIN_DATA, 'credentials.json'), 'utf8'));
-  if (typeof config.token !== 'string' || !config.token.trim()) throw new Error('Set a GitHub token in PLUGIN_DATA/credentials.json and refresh the plugin');
+  let config = { token: process.env.GITHUB_TOKEN };
+  if (!config.token) {
+    try { config = JSON.parse(await readFile(path.join(process.env.PLUGIN_DATA, 'credentials.json'), 'utf8')); }
+    catch { throw new Error('Set the GitHub token in this plugin’s settings'); }
+  }
+  if (typeof config.token !== 'string' || !config.token.trim()) throw new Error('Set the GitHub token in this plugin’s settings');
   const client = new Client({ name: 'openagent-github', version: '0.1.0' });
   try {
     await client.connect(new StreamableHTTPClientTransport(new URL('https://api.githubcopilot.com/mcp/'), { requestInit: { headers: { Authorization: 'Bearer ' + config.token } } }));
@@ -25,7 +29,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 });
 server.setRequestHandler(CallToolRequestSchema, async request => {
   try { return await (await connect()).callTool({ name: request.params.name, arguments: request.params.arguments }); }
-  catch { return { isError: true, content: [{ type: 'text', text: 'GitHub MCP unavailable; configure credentials.json and refresh the plugin' }] }; }
+  catch { return { isError: true, content: [{ type: 'text', text: 'GitHub MCP unavailable; check the token in plugin settings and network access' }] }; }
 });
 server.onclose = () => { void connection?.close(); };
 await server.connect(new StdioServerTransport());

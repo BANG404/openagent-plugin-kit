@@ -1,0 +1,5 @@
+{
+  "description":"MCP parameter bindings cannot target another package or an absent HTTP server",
+  "openagent":{"compatibility":{"plugin_protocol":{"min":1,"max":1},"features":["configuration-v1"]},"configuration":{"version":1,"fields":[{"key":"client","label":"Client","type":"string","mcp":{"server":"absent","property":"oauth_client_id"}}]}},
+  "expect":{"valid":false,"diagnostics":[{"level":"error","contains":"unavailable HTTP MCP server"}]}
+}

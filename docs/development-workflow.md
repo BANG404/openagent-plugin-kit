@@ -139,3 +139,5 @@ Keep fixture roots short enough for a nested Runtime home; an excessively long
 caller-owned home fails with retained logs instead of widening write grants.
 Atomic state replacement retries bounded Windows sharing failures while keeping
 the previous complete value; a persistent failure stops with its error.
+
+For configuration parameters, secret fields and package-owned OAuth setup, read [configuration](configuration.md) before authoring or qualifying a package.

@@ -5,6 +5,8 @@ import { homedir } from 'node:os';
 const id = JSON.parse(readFileSync(new URL('../plugin.json', import.meta.url), 'utf8')).name;
 let ready = id === 'fakechat';
 if (id === 'telegram' || id === 'discord') {
+  ready = Boolean(process.env[id.toUpperCase() + '_BOT_TOKEN']?.trim());
+  if (!ready) {
   try {
     const lines = readFileSync(path.join(process.env.PLUGIN_DATA, 'channel', '.env'), 'utf8').split(/\r?\n/);
     ready = lines.some(line => {
@@ -12,6 +14,7 @@ if (id === 'telegram' || id === 'discord') {
       return match?.[1] === id.toUpperCase() + '_BOT_TOKEN' && match[2].replace(/^(['"])(.*)\1$/, '$2').trim().length > 0;
     });
   } catch {}
+  }
 }
 if (id === 'imessage') ready = process.platform === 'darwin' && existsSync(path.join(homedir(), 'Library', 'Messages', 'chat.db'));
 process.env.OPENAGENT_CHANNEL_READY = String(ready);

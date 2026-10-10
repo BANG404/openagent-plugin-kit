@@ -185,3 +185,5 @@ App context or `await host.locale.get()` before producing a process notice.
 Preserve input, IDs, user content, and state. Official qualification passes all
 keys from the tested platform's `src/lib/platformLocales.json` as `--locales`;
 third-party subsets must display the host's fallback explanation.
+
+For configuration parameters, secret fields and package-owned OAuth setup, read [configuration](../../docs/configuration.md) before authoring or qualifying a package.

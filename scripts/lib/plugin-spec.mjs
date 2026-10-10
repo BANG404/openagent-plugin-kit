@@ -347,6 +347,52 @@ function typeMismatch(field, value, loaderBehavior) {
   return `'${field}' is ${describeValue(value)}, so the loader would ignore it and ${loaderBehavior}`;
 }
 
+function validateConfiguration(schema, features) {
+  const invalid = "Invalid extensions.openagent.configuration";
+  if (!Array.isArray(features) || !features.includes("configuration-v1")) return `${invalid}: requires compatibility.features: configuration-v1`;
+  if (!isPlainObject(schema) || unknownKeys(schema, ["version", "fields"]).length || schema.version !== 1 || !Array.isArray(schema.fields) || schema.fields.length > 64) return invalid;
+  const keys = new Set();
+  const envs = new Set();
+  const bindings = new Set();
+  const bytes = value => Buffer.byteLength(value, "utf8");
+  for (const field of schema.fields) {
+    if (!isPlainObject(field) || unknownKeys(field, ["key", "label", "description", "type", "required", "secret", "default", "options", "minimum", "maximum", "env", "mcp"]).length ||
+        typeof field.key !== "string" || !isMessageTag(field.key) || field.key.includes(".") || keys.has(field.key) ||
+        typeof field.label !== "string" || !field.label || bytes(field.label) > 256 ||
+        (field.description !== undefined && (typeof field.description !== "string" || bytes(field.description) > 2048)) ||
+        !["string", "boolean", "integer", "enum"].includes(field.type) ||
+        ["required", "secret"].some(key => field[key] !== undefined && typeof field[key] !== "boolean") ||
+        (field.secret && (field.type !== "string" || field.default !== undefined)) ||
+        ["minimum", "maximum"].some(key => field[key] !== undefined && !Number.isSafeInteger(field[key])) ||
+        (field.minimum !== undefined && field.maximum !== undefined && field.minimum > field.maximum) ||
+        (field.options !== undefined && (!Array.isArray(field.options) || field.options.some(option => typeof option !== "string" || !option || bytes(option) > 1024))) ||
+        (field.type === "enum" && (!field.options?.length || field.options.length > 64))) return `${invalid} field`;
+    keys.add(field.key);
+    const env = field.env ?? `PLUGIN_CONFIG_${field.key.replaceAll("-", "_").toUpperCase()}`;
+    if (typeof env !== "string" || !/^[A-Z][A-Z0-9_]{0,127}$/.test(env) || envs.has(env) || env.startsWith("OPENAGENT_") ||
+        (env.startsWith("PLUGIN_") && !env.startsWith("PLUGIN_CONFIG_")) || env.startsWith("DYLD_") ||
+        ["PATH", "HOME", "USERPROFILE", "LD_PRELOAD", "LD_LIBRARY_PATH", "NODE_OPTIONS", "NODE_PATH", "PYTHONPATH", "PYTHONHOME", "COMSPEC", "SYSTEMROOT", "BASH_ENV", "ENV", "SHELLOPTS", "BASHOPTS"].includes(env)) return `${invalid} environment binding`;
+    envs.add(env);
+    if (field.mcp !== undefined && (!isPlainObject(field.mcp) || unknownKeys(field.mcp, ["server", "property"]).length ||
+        field.env !== undefined || field.type !== "string" || typeof field.mcp.server !== "string" || !field.mcp.server ||
+        !["oauth_client_id", "oauth_scope", "bearer_token"].includes(field.mcp.property) ||
+        (field.mcp.property === "bearer_token" ? !field.secret : field.secret))) return `${invalid} MCP binding`;
+    if (field.mcp) {
+      const binding = JSON.stringify([field.mcp.server, field.mcp.property]);
+      if (bindings.has(binding)) return `${invalid} duplicate MCP binding`;
+      bindings.add(binding);
+    }
+    if (field.default !== undefined) {
+      const value = field.default;
+      const valid = field.type === "string" ? typeof value === "string" && bytes(value) <= 16384 && !value.includes("\0") :
+        field.type === "boolean" ? typeof value === "boolean" : field.type === "enum" ? field.options.includes(value) :
+        Number.isSafeInteger(value) && (field.minimum === undefined || value >= field.minimum) && (field.maximum === undefined || value <= field.maximum);
+      if (!valid) return `${invalid} default`;
+    }
+  }
+  return null;
+}
+
 function inspectExtensions(root, report, openagent) {
   // `extensions.openagent` is OpenAgent's own namespace, so a key it does not
   // define is a typo rather than another host's extension. The loader ignores
@@ -364,6 +410,7 @@ function inspectExtensions(root, report, openagent) {
     "mcp_tool_mode",
     "mcp_tool_modes",
     "compatibility",
+    "configuration",
   ]);
   for (const key of unread) {
     push(
@@ -396,11 +443,16 @@ function inspectExtensions(root, report, openagent) {
   if (openagent.compatibility !== undefined) {
     const compatibility = openagent.compatibility;
     const range = compatibility?.plugin_protocol;
-    if (!isPlainObject(compatibility) || unknownKeys(compatibility, ["plugin_protocol"]).length ||
+    if (!isPlainObject(compatibility) || unknownKeys(compatibility, ["plugin_protocol", "features"]).length ||
         !isPlainObject(range) || unknownKeys(range, ["min", "max"]).length ||
+        (compatibility.features !== undefined && (!Array.isArray(compatibility.features) || compatibility.features.some(feature => !["configuration-v1", "plugin-oauth-v1"].includes(feature)))) ||
         !Number.isInteger(range.min) || !Number.isInteger(range.max) || range.min < 1 || range.min > range.max || range.max > 0xffffffff) {
-      push(report, "error", "extensions.openagent.compatibility requires only plugin_protocol with integer bounds 1 <= min <= max <= 4294967295");
+      push(report, "error", "extensions.openagent.compatibility requires plugin_protocol with integer bounds 1 <= min <= max <= 4294967295 and recognized optional features");
     }
+  }
+  if (openagent.configuration !== undefined) {
+    const reason = validateConfiguration(openagent.configuration, openagent.compatibility?.features);
+    if (reason) push(report, "error", reason);
   }
   if (openagent.mcp_tool_mode !== undefined && !["direct", "relay"].includes(openagent.mcp_tool_mode)) {
     push(report, "error", "extensions.openagent.mcp_tool_mode must be 'direct' or 'relay'");
@@ -1158,6 +1210,11 @@ export function inspectPackage(packageDir) {
   inspectSkills(report.root, report);
   inspectMcp(report.root, report);
   const openagent = readJsonFile(path.join(report.root, MANIFEST_FILE)).extensions?.openagent;
+  for (const field of Array.isArray(openagent?.configuration?.fields) ? openagent.configuration.fields : []) {
+    if (field?.mcp && !report.mcpServers.some(server => server.name === field.mcp.server && ["http", "streamable-http"].includes(server.transport))) {
+      push(report, "error", "Configuration binding names an unavailable HTTP MCP server");
+    }
+  }
   const defaultMode = openagent?.mcp_tool_mode ?? "direct";
   const modes = isPlainObject(openagent?.mcp_tool_modes) ? openagent.mcp_tool_modes : {};
   for (const server of report.mcpServers) server.tool_mode = modes[server.name] ?? defaultMode;

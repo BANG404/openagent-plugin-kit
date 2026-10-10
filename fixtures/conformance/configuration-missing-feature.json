@@ -1,0 +1,5 @@
+{
+  "description": "Older Runtimes must reject configuration packages through an explicit feature declaration",
+  "openagent":{"configuration":{"version":1,"fields":[]}},
+  "expect":{"valid":false,"diagnostics":[{"level":"error","contains":"configuration-v1"}]}
+}

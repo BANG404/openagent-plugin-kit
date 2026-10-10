@@ -79,9 +79,12 @@ must not depend on punctuation to sort above a lower one.
 
 ### Plugin protocol compatibility
 
-`extensions.openagent.compatibility` accepts only `plugin_protocol`, an object
+`extensions.openagent.compatibility` accepts `plugin_protocol`, an object
 containing positive unsigned 32-bit `min` and `max` with `min <= max`. Unknown
-keys, missing bounds and malformed ranges reject the manifest. The declaration
+keys, missing bounds and malformed ranges reject the manifest. Optional
+`features` is an array of required Runtime features: `configuration-v1` and
+`plugin-oauth-v1`. Unknown features reject the package. Older Runtimes reject
+the new member instead of silently loading a package without its setup. The declaration
 is independent of the portable `$schema` and package `version`. When omitted,
 the Runtime treats it as `{ "min": 1, "max": 1 }`; this baseline does not advance
 when Runtime upgrades. The validator checks structure, while installation checks
@@ -487,3 +490,5 @@ by design — that one is a notice rather than a failure.
 Each of these rules is pinned by a fixture under `fixtures/conformance/`, one
 package per case. `bun test` runs them, so a rule change has to change a
 reviewed fixture rather than only a line of code.
+
+For configuration parameters, secret fields and package-owned OAuth setup, read [configuration](configuration.md) before authoring or qualifying a package.
