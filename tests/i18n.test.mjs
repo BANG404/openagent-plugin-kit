@@ -1,6 +1,6 @@
 import { test, expect } from "bun:test";
 import { validatePluginI18n, normalizePluginLocale } from "../lib/plugin-i18n.mjs";
-const manifest = () => ({description:"Messages",extensions:{openagent:{i18n:{supported_locales:["en","ZH"], default_locale:"en",translations:{en:{display_name:"Board",description:"Messages"},zh:{display_name:"留言板",description:"消息"}}}}}});
+const manifest = () => ({description:"Example tools",extensions:{openagent:{i18n:{supported_locales:["en","ZH"], default_locale:"en",translations:{en:{display_name:"Example Plugin",description:"Example tools"},zh:{display_name:"示例插件",description:"示例工具"}}}}}});
 test("normalizes declarations and requires every platform locale at official qualification", () => {
   expect(validatePluginI18n(manifest(),{locales:["zh","en"]}).supported_locales).toEqual(["en","zh"]);
   expect(() => validatePluginI18n(manifest(),{locales:["fr"]})).toThrow("missing a platform locale");

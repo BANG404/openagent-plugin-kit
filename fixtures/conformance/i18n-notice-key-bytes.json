@@ -9,13 +9,13 @@
       "default_locale": "en",
       "translations": {
         "en": {
-          "display_name": "Board",
-          "description": "Messages",
+          "display_name": "Example Plugin",
+          "description": "Example tools",
           "notice.界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界": "Busy"
         },
         "zh": {
-          "display_name": "留言板",
-          "description": "消息",
+          "display_name": "示例插件",
+          "description": "示例工具",
           "notice.界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界": "Busy"
         }
       }

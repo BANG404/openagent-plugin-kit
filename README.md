@@ -4,21 +4,13 @@
 **OpenAgent Plugin Kit** repository. Its stable package ID is
 `openagent-plugin-kit`; its commands start with `/openagent-plugin-kit:`.
 
-| Plugin | Stable ID | Project source | Purpose |
-| --- | --- | --- | --- |
-| Plugin Developer / 插件开发助手 | `openagent-plugin-kit` | `plugins/openagent-plugin-kit/` | Create, implement, test and qualify other plugins |
-| Message Board / 留言板 | `message-board` | `plugins/message-board/` | Persist channels, messages, threads and subscriptions for agent collaboration |
-
-These are independent packages and Git repositories. Message Board is published
-at [BANG404/message-board](https://github.com/BANG404/message-board). Install,
-update and uninstall each package by its own ID; their `PLUGIN_DATA` directories
-are separate. An old checkout name mentioning both packages does not identify
-either package. In another project, use its existing plugin directory, or
+The OpenAgent source checkout is `plugins/openagent-plugin-kit/`. In another
+project, use its existing plugin directory, or
 `plugin/<package-id>/` when it has no convention. Resolve paths from the current
 project root.
 
-插件开发助手用于开发和验收其他插件；留言板用于智能体之间的持久化消息协作。
-两者的源码、发布仓库、插件 ID 和数据目录独立，不能互相替换。
+插件开发助手用于创建、开发、测试和验收其他插件，插件 ID 为
+`openagent-plugin-kit`，命令以 `/openagent-plugin-kit:` 开头。
 
 A standalone repository for building [Agent Plugins](https://agent-plugins.org/)
 1.0.0 packages that OpenAgent installs. The installable kit includes a plugin

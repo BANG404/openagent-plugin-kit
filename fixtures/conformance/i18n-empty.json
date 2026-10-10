@@ -9,11 +9,11 @@
       "default_locale": "en",
       "translations": {
         "en": {
-          "display_name": "Board",
-          "description": "Messages"
+          "display_name": "Example Plugin",
+          "description": "Example tools"
         },
         "zh": {
-          "display_name": "留言板",
+          "display_name": "示例插件",
           "description": " "
         }
       }

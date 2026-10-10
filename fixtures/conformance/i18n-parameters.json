@@ -9,13 +9,13 @@
       "default_locale": "en",
       "translations": {
         "en": {
-          "display_name": "Board",
-          "description": "Messages",
+          "display_name": "Example Plugin",
+          "description": "Example tools",
           "notice.busy": "Busy {id}"
         },
         "zh": {
-          "display_name": "留言板",
-          "description": "消息",
+          "display_name": "示例插件",
+          "description": "示例工具",
           "notice.busy": "忙碌 {other}"
         }
       }
