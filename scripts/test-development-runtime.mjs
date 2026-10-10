@@ -49,10 +49,12 @@ const model = createServer(async (request, response) => {
       if (pendingResult.tool === 'exec_command') {
         const terminal = JSON.parse(content.split('\n')[0]);
         if (terminal.status === 'running') {
+          const sessionId = terminal.session_id ?? terminal.metadata?.session_id;
+          assert.equal(typeof sessionId, 'string', 'Running terminal results require a session identity');
           const poll = body.tools.find(tool => tool.function.name.endsWith('write_stdin'));
           assert(poll, 'Running skill reads require terminal polling');
           response.writeHead(200, { 'content-type': 'application/x-ndjson' });
-          response.end(JSON.stringify({ model: 'development-fixture', created_at: new Date().toISOString(), message: { role: 'assistant', content: '', tool_calls: [{ function: { name: poll.function.name, arguments: { session_id: terminal.session_id, chars: '', yield_time_ms: 30000 } } }] }, done: true, done_reason: 'stop' }) + '\n');
+          response.end(JSON.stringify({ model: 'development-fixture', created_at: new Date().toISOString(), message: { role: 'assistant', content: '', tool_calls: [{ function: { name: poll.function.name, arguments: { session_id: sessionId, chars: '', yield_time_ms: 30000 } } }] }, done: true, done_reason: 'stop' }) + '\n');
           modelRequests++;
           return;
         }

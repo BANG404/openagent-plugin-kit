@@ -141,3 +141,7 @@ Atomic state replacement retries bounded Windows sharing failures while keeping
 the previous complete value; a persistent failure stops with its error.
 
 For configuration parameters, secret fields and package-owned OAuth setup, read [configuration](configuration.md) before authoring or qualifying a package.
+
+When polling a running terminal command, retain its original session ID or read
+`metadata.session_id` from subsequent poll results. A running poll may omit the
+top-level `session_id`; it still belongs to the same session.
