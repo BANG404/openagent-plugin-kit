@@ -18,6 +18,11 @@ test('release artifacts retain their recorded bytes and source identity', async 
 test('MCP declarations use portable transports, contained assets and no literal credentials', async () => {
   const mcp = await json('mcp.json');
   const manifest = await json('plugin.json');
+  if (manifest.name === 'firebase') expect(mcp.mcpServers.firebase.env.XDG_CONFIG_HOME).toBe('${PLUGIN_DATA}/config');
+  if (manifest.name === 'serena') {
+    expect(mcp.mcpServers.serena.env.HOME).toBe('${PLUGIN_DATA}');
+    expect(mcp.mcpServers.serena.env.USERPROFILE).toBe('${PLUGIN_DATA}');
+  }
   expect(mcp.$schema).toBe('https://agent-plugins.org/schemas/1.0.0/mcp.schema.json');
   expect(mcp.mcpServers.setup.command).toBe('node');
   expect(manifest.extensions.openagent.compatibility.plugin_protocol).toEqual({ min: 1, max: 1 });
@@ -26,6 +31,12 @@ test('MCP declarations use portable transports, contained assets and no literal 
   expect(text).not.toContain('GITHUB_PERSONAL_ACCESS_TOKEN');
   expect(text).not.toContain('${TFE_TOKEN}');
   for (const server of Object.values(mcp.mcpServers)) {
+    if (server.command === 'npx') expect(server.env?.npm_config_cache).toBe('${PLUGIN_DATA}/npm-cache');
+    if (server.command === 'npx') expect(server.env?.npm_config_ignore_scripts).toBe('true');
+    if (server.command === 'uvx') {
+      expect(server.env?.UV_CACHE_DIR).toBe('${PLUGIN_DATA}/uv-cache');
+      expect(server.env?.UV_PYTHON_INSTALL_DIR).toBe('${PLUGIN_DATA}/uv-python');
+    }
     expect(['stdio', 'streamable-http']).toContain(server.type);
     if (server.url) expect(new URL(server.url).protocol).toBe('https:');
     for (const arg of server.args ?? []) if (arg.startsWith('${PLUGIN_ROOT}/'))

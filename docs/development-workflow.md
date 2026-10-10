@@ -36,7 +36,9 @@ disabled, retains license/provenance and generates package tests. Git's
 ownership exception applies only to that explicitly selected contained checkout
 for the revision read; global Git configuration is unchanged. Failed conversion
 removes its private staging package and never leaves a partial final candidate.
-Dependency temporary files and cache stay in permitted paths. Bun compilation
+Dependency temporary files and cache stay in permitted paths. Installed npx/uvx
+caches and managed Python installations use PLUGIN_DATA, because user-home npm/uv
+caches are not writable under managed confinement. Bun compilation
 uses its API with an explicit root; the CLI resolver can fail on unreadable
 Windows parent directories. All installed adapters run as prebuilt Node bundles;
 Fakechat's local HTTP/WebSocket surface is adapted from Bun to Node. Bun remains
@@ -44,6 +46,10 @@ the development/build/test prerequisite, not a production channel dependency.
 Runtime acceptance must execute setup and the
 requested service assertions; prerequisites alone do not prove authenticated
 external behavior. Never claim real provider operations from setup tool success.
+The current Windows production fixture rejects secondary native child launches
+(Chrome/Python) with EPERM/Access denied even when setup MCP connects. Record that
+Runtime limitation separately from package acceptance; keep confinement enabled
+and do not report browser/Python service operations as qualified.
 
 Channel conversions preserve upstream pairing/allowlist gates and route admitted
 messages through the generic Host Bridge, with desktop owner binding, independent

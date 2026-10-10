@@ -7,3 +7,8 @@ test('Claude MCP conversion normalizes both layouts and package roots', () => {
   expect(() => convertMcp({ server: { type: 'sse' } })).toThrow('Unsupported');
   expect(() => convertMcp({ server: null })).toThrow('Invalid');
 });
+
+test('dependency launchers keep writable caches in plugin data', () => {
+  expect(convertMcp({ npm: { command: 'npx', env: { CUSTOM: 'retained', npm_config_cache: '/user/cache' } } }).npm.env).toEqual({ CUSTOM: 'retained', npm_config_cache: '${PLUGIN_DATA}/npm-cache', npm_config_ignore_scripts: 'true' });
+  expect(convertMcp({ python: { command: 'uvx' } }).python.env).toEqual({ UV_CACHE_DIR: '${PLUGIN_DATA}/uv-cache', UV_PYTHON_INSTALL_DIR: '${PLUGIN_DATA}/uv-python' });
+});
