@@ -1,0 +1,10 @@
+{
+  "description": "optional discovery category is validated independently of capabilities",
+  "openagent": {
+    "category": "development"
+  },
+  "expect": {
+    "valid": true,
+    "clean": true
+  }
+}

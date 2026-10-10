@@ -43,6 +43,10 @@ no scaffold inherits the kit's own update source. It refuses to overwrite a
 non-empty destination, never runs the package, and never writes outside the
 destination directory.
 
+Templates declare the `development` discovery category. Change
+`extensions.openagent.category` to match the generated package domain using
+the IDs in `docs/plugin-format.md`; it is metadata, not a capability.
+
 Templates declare English only. The scaffold rewrites translated metadata as
 well as root metadata; complete and extend translations before advertising
 another locale. Sidebar examples validate parent, type, version 1 and locale,

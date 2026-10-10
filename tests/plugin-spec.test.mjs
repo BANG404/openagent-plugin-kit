@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { readdirSync, rmSync } from "node:fs";
+import { readFileSync, readdirSync, rmSync } from "node:fs";
 import path from "node:path";
 
 import {
@@ -238,4 +238,14 @@ describe("diagnostics", () => {
     expect(report.diagnostics[0].message).toContain("unsupported top-level mcp.json");
     rmSync(root, { recursive: true, force: true });
   });
+});
+
+
+test("category JSON schema and manifest validator accept the same discovery IDs", () => {
+  const schema = JSON.parse(readFileSync(path.join(kitRoot, "schemas/openagent-category.schema.json"), "utf8"));
+  for (const category of schema.enum) {
+    const report = inspectPackage(writePackage(makeTempDirectory("plugin-category-"), validManifest({ extensions: { openagent: { category } } })));
+    expect(hasFailures(report)).toBe(false);
+    expect(report.diagnostics).toEqual([]);
+  }
 });

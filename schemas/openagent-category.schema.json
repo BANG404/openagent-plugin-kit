@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAgent plugin discovery category",
+  "description": "Optional extensions.openagent.category metadata; omission means uncategorized.",
+  "type": "string",
+  "enum": ["development", "productivity", "communication", "automation", "data", "design", "other"]
+}

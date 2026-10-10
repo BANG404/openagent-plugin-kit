@@ -492,3 +492,19 @@ package per case. `bun test` runs them, so a rule change has to change a
 reviewed fixture rather than only a line of code.
 
 For configuration parameters, secret fields and package-owned OAuth setup, read [configuration](configuration.md) before authoring or qualifying a package.
+
+## Discovery categories
+
+`extensions.openagent.category` is optional presentation metadata with one stable
+ID: `development`, `productivity`, `communication`, `automation`, `data`, `design`
+or `other`. Omission means uncategorized; null, arrays, empty strings and unknown
+IDs reject the manifest with a category diagnostic. Keep names localized in the
+client; IDs never change with locale. Category grants no permissions and changes
+no component loading or process policy. Older Runtimes ignore the optional
+metadata and continue loading the package, so plugin protocol 1 is unchanged.
+
+Declare it inside the OpenAgent extension, for example:
+
+```json
+{"extensions":{"openagent":{"category":"development"}}}
+```

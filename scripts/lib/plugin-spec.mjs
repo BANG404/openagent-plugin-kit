@@ -399,6 +399,7 @@ function inspectExtensions(root, report, openagent) {
   // it silently, which means a misspelled component key costs the author that
   // whole component without a word anywhere.
   const unread = unknownKeys(openagent, [
+    "category",
     "capabilities",
     "commands",
     "message_policies",
@@ -420,6 +421,9 @@ function inspectExtensions(root, report, openagent) {
     );
   }
 
+  if (openagent.category !== undefined && !["development", "productivity", "communication", "automation", "data", "design", "other"].includes(openagent.category)) {
+    push(report, "error", "extensions.openagent.category must be a recognized category ID");
+  }
   const capabilities = stringArray(openagent.capabilities);
   if (openagent.ui_components !== undefined) {
     const seen = new Set();

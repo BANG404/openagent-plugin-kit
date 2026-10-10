@@ -53,6 +53,7 @@ domain state and scheduling in the package.
   "repository": "https://github.com/you/my-plugin",
   "extensions": {
     "openagent": {
+      "category": "development",
       "capabilities": ["skills", "mcp"],
       "i18n": {
         "supported_locales": ["en"], "default_locale": "en",

@@ -1,0 +1,15 @@
+{
+  "description": "optional discovery category is validated independently of capabilities",
+  "openagent": {
+    "category": "unknown"
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      {
+        "level": "error",
+        "contains": "extensions.openagent.category"
+      }
+    ]
+  }
+}
