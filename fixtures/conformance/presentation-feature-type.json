@@ -1,0 +1,22 @@
+{
+  "description": "malformed presentation admission features report a diagnostic instead of throwing",
+  "openagent": {
+    "type": "integration",
+    "compatibility": {
+      "plugin_protocol": {
+        "min": 1,
+        "max": 1
+      },
+      "features": {}
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      {
+        "level": "error",
+        "contains": "compatibility.features"
+      }
+    ]
+  }
+}

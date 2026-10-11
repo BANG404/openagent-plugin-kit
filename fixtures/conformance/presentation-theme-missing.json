@@ -1,0 +1,15 @@
+{
+  "description": "presentation type and declarative theme contract",
+  "openagent": {
+    "type": "theme"
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      {
+        "level": "error",
+        "contains": "extensions.openagent.theme"
+      }
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "description": "presentation type and declarative theme contract",
+  "openagent": {
+    "type": "theme",
+    "compatibility": {
+      "plugin_protocol": {
+        "min": 1,
+        "max": 1
+      },
+      "features": [
+        "theme-v1"
+      ]
+    },
+    "theme": {
+      "version": 1,
+      "tokens": {
+        "background": "red"
+      }
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      {
+        "level": "error",
+        "contains": "theme token"
+      }
+    ]
+  }
+}

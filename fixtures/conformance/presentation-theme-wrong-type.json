@@ -1,0 +1,27 @@
+{
+  "description": "presentation type and declarative theme contract",
+  "openagent": {
+    "type": "integration",
+    "theme": {
+      "version": 1,
+      "tokens": {
+        "--app-radius": "20px"
+      },
+      "light": {
+        "--primary": "#663399"
+      },
+      "dark": {
+        "--primary": "#cc99ff"
+      }
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      {
+        "level": "error",
+        "contains": "extensions.openagent.theme"
+      }
+    ]
+  }
+}

@@ -82,8 +82,8 @@ must not depend on punctuation to sort above a lower one.
 `extensions.openagent.compatibility` accepts `plugin_protocol`, an object
 containing positive unsigned 32-bit `min` and `max` with `min <= max`. Unknown
 keys, missing bounds and malformed ranges reject the manifest. Optional
-`features` is an array of required Runtime features: `configuration-v1` and
-`plugin-oauth-v1`. Unknown features reject the package. Older Runtimes reject
+`features` is an array of required Runtime features: `configuration-v1`,
+`plugin-oauth-v1`, `theme-v1`, and `integration-v1`. Unknown features reject the package. Older Runtimes reject
 the new member instead of silently loading a package without its setup. The declaration
 is independent of the portable `$schema` and package `version`. When omitted,
 the Runtime treats it as `{ "min": 1, "max": 1 }`; this baseline does not advance
@@ -93,6 +93,40 @@ the target Runtime's protocol. Declare only ranges verified against those Runtim
 Optional Host Bridge capabilities such as embedding require runtime detection;
 protocol admission alone does not prove they exist. See [Host Bridge](host-bridge.md)
 and [version ownership](publishing.md#version-ownership).
+
+## Presentation types
+
+`extensions.openagent.type` declares `agent` (default), `theme`, or
+`integration`, independently of discovery categories. The Runtime projects it
+as `plugin_type`. A theme overlays the current light/dark design; an integration
+appears in Integrations → Channels with its ordinary enablement and
+configuration/OAuth controls. A type never grants process permissions or binds
+a new Runtime transport. Package identities remain separate from built-in
+channel adapter identities.
+
+Theme packages require `theme.version: 1` and `tokens`, `light`, and/or `dark`
+custom-property maps. There must be 1–256 entries in total; keys match
+`^--[a-z][a-z0-9-]{0,79}$`; values are nonempty strings of at most 512 UTF-8
+bytes. Control characters, semicolons, braces, markup, at signs, escapes,
+comments, URL/expression functions and `!important` are forbidden. Unknown
+members, null maps, unsupported versions and a theme on any other type fail
+validation. `schemas/openagent-presentation.schema.json` describes the
+structural boundary; the package validator enforces aggregate and byte bounds.
+
+Use existing application CSS variables for colors, surfaces, typography where
+exposed, radii, spacing, shadows and motion. Common `tokens` apply before the
+resolved light/dark map. Enabled themes apply in ascending ASCII package-ID
+order, with later values winning; disablement/removal restores the original
+styles. No executable stylesheet or remote resource is loaded.
+
+The authoring validator requires `theme-v1` or `integration-v1` in
+`compatibility.features` for the matching type. The current Runtime accepts
+omission but older Runtimes would silently ignore presentation; the explicit
+feature is therefore an authoring gate just like `configuration-v1`.
+Use `templates/theme` or `templates/integration` as complete starting packages.
+The integration template declares a settings field; add ordinary MCP servers,
+commands or Skills for the actual service behavior. Channel adaptations
+imported through the kit declare the integration type automatically.
 
 ## Skills
 

@@ -14,6 +14,8 @@ package, not a fragment: copy it, rename the identity, and install it.
 
 | Template | Use when the plugin needs |
 | --- | --- |
+| `theme` | To override application colors and design variables |
+| `integration` | To expose service setup in Integrations → Channels |
 | `minimal` | A single Skill and nothing else |
 | `skill-pack` | Several Skills that belong to one capability |
 | `mcp-tools` | To expose tools through a local stdio MCP server |

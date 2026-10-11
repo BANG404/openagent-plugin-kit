@@ -1,0 +1,15 @@
+{
+  "description": "presentation type and declarative theme contract",
+  "openagent": {
+    "type": "integration"
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      {
+        "level": "error",
+        "contains": "compatibility.features"
+      }
+    ]
+  }
+}

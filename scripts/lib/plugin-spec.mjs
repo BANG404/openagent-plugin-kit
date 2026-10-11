@@ -393,6 +393,34 @@ function validateConfiguration(schema, features) {
   return null;
 }
 
+function validatePresentation(openagent) {
+  const type = openagent.type === undefined ? "agent" : openagent.type;
+  if (!["agent", "theme", "integration"].includes(type)) return "extensions.openagent.type must be 'agent', 'theme' or 'integration'";
+  if (type !== "theme" && openagent.theme !== undefined) return "extensions.openagent.theme requires type 'theme'";
+  if (type === "theme") {
+    const theme = openagent.theme;
+    if (!isPlainObject(theme) || unknownKeys(theme, ["version", "tokens", "light", "dark"]).length || theme.version !== 1)
+      return "extensions.openagent.theme requires version 1 and token maps";
+    let count = 0;
+    for (const group of ["tokens", "light", "dark"]) {
+      const tokens = theme[group] === undefined ? {} : theme[group];
+      if (!isPlainObject(tokens)) return `extensions.openagent.theme.${group} must be a token object`;
+      const entries = Object.entries(tokens);
+      count += entries.length;
+      for (const [key, value] of entries) {
+        if (!/^--[a-z][a-z0-9-]{0,79}$/.test(key) || typeof value !== "string" || !value.trim() ||
+            Buffer.byteLength(value, "utf8") > 512 || /[\p{Cc};{}<>@\\]/u.test(value) ||
+            /url\(|expression\(|\/\*|!important/i.test(value))
+          return `invalid extensions.openagent.theme token '${key}'`;
+      }
+    }
+    if (count < 1 || count > 256) return "extensions.openagent.theme requires 1..256 tokens";
+  }
+  if (type !== "agent" && (!Array.isArray(openagent.compatibility?.features) || !openagent.compatibility.features.includes(`${type}-v1`)))
+    return `extensions.openagent.type requires compatibility.features: ${type}-v1`;
+  return null;
+}
+
 function inspectExtensions(root, report, openagent) {
   // `extensions.openagent` is OpenAgent's own namespace, so a key it does not
   // define is a typo rather than another host's extension. The loader ignores
@@ -400,6 +428,8 @@ function inspectExtensions(root, report, openagent) {
   // whole component without a word anywhere.
   const unread = unknownKeys(openagent, [
     "category",
+    "type",
+    "theme",
     "capabilities",
     "commands",
     "message_policies",
@@ -424,6 +454,8 @@ function inspectExtensions(root, report, openagent) {
   if (openagent.category !== undefined && !["development", "productivity", "communication", "automation", "data", "design", "other"].includes(openagent.category)) {
     push(report, "error", "extensions.openagent.category must be a recognized category ID");
   }
+  const presentationError = validatePresentation(openagent);
+  if (presentationError) push(report, "error", presentationError);
   const capabilities = stringArray(openagent.capabilities);
   if (openagent.ui_components !== undefined) {
     const seen = new Set();
@@ -449,7 +481,7 @@ function inspectExtensions(root, report, openagent) {
     const range = compatibility?.plugin_protocol;
     if (!isPlainObject(compatibility) || unknownKeys(compatibility, ["plugin_protocol", "features"]).length ||
         !isPlainObject(range) || unknownKeys(range, ["min", "max"]).length ||
-        (compatibility.features !== undefined && (!Array.isArray(compatibility.features) || compatibility.features.some(feature => !["configuration-v1", "plugin-oauth-v1"].includes(feature)))) ||
+        (compatibility.features !== undefined && (!Array.isArray(compatibility.features) || compatibility.features.some(feature => !["configuration-v1", "plugin-oauth-v1", "theme-v1", "integration-v1"].includes(feature)))) ||
         !Number.isInteger(range.min) || !Number.isInteger(range.max) || range.min < 1 || range.min > range.max || range.max > 0xffffffff) {
       push(report, "error", "extensions.openagent.compatibility requires plugin_protocol with integer bounds 1 <= min <= max <= 4294967295 and recognized optional features");
     }

@@ -41,6 +41,10 @@ For package orchestration, use the dependency-free client in
 conversation, branch, Agent submit/wake, roles, and event interface; keep all
 domain state and scheduling in the package.
 
+For theme configuration and installed channel presentation, use the `theme`
+and `integration` templates and read `docs/plugin-format.md#presentation-types`.
+The type is separate from category and requires its matching Runtime feature.
+
 ## Manifest skeleton
 
 ```json

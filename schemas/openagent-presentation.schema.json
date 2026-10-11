@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAgent presentation types",
+  "description": "Structural schema for extensions.openagent presentation. The package validator additionally checks aggregate token count, UTF-8 byte limits and unsafe CSS values.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "enum": [
+        "agent",
+        "theme",
+        "integration"
+      ],
+      "default": "agent"
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version"
+      ],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "tokens": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^--[a-z][a-z0-9-]{0,79}$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "maxProperties": 256
+        },
+        "light": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^--[a-z][a-z0-9-]{0,79}$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "maxProperties": 256
+        },
+        "dark": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^--[a-z][a-z0-9-]{0,79}$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "maxProperties": 256
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "const": "theme"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "theme"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "theme"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "openagent-plugin-template-integration",
+  "version": "1.0.0",
+  "description": "Integration template",
+  "license": "MIT",
+  "extensions": {
+    "openagent": {
+      "type": "integration",
+      "compatibility": {
+        "plugin_protocol": {
+          "min": 1,
+          "max": 1
+        },
+        "features": [
+          "integration-v1",
+          "configuration-v1"
+        ]
+      },
+      "configuration": {
+        "version": 1,
+        "fields": [
+          {
+            "key": "account",
+            "label": "Account",
+            "type": "string",
+            "required": true,
+            "env": "INTEGRATION_ACCOUNT"
+          }
+        ]
+      },
+      "i18n": {
+        "supported_locales": [
+          "en"
+        ],
+        "default_locale": "en",
+        "translations": {
+          "en": {
+            "display_name": "Integration template",
+            "description": "Integration template",
+            "configuration.account.label": "Account"
+          }
+        }
+      }
+    }
+  }
+}
