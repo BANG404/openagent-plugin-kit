@@ -482,7 +482,7 @@ function inspectExtensions(root, report, openagent) {
     const range = compatibility?.plugin_protocol;
     if (!isPlainObject(compatibility) || unknownKeys(compatibility, ["plugin_protocol", "features"]).length ||
         !isPlainObject(range) || unknownKeys(range, ["min", "max"]).length ||
-        (compatibility.features !== undefined && (!Array.isArray(compatibility.features) || compatibility.features.some(feature => !["configuration-v1", "plugin-oauth-v1", "theme-v1", "integration-v1", "conversation-observations-v1"].includes(feature)))) ||
+        (compatibility.features !== undefined && (!Array.isArray(compatibility.features) || compatibility.features.some(feature => !["configuration-v1", "plugin-oauth-v1", "theme-v1", "integration-v1", "conversation-observations-v1", "context-sessions-v1"].includes(feature)))) ||
         !Number.isInteger(range.min) || !Number.isInteger(range.max) || range.min < 1 || range.min > range.max || range.max > 0xffffffff) {
       push(report, "error", "extensions.openagent.compatibility requires plugin_protocol with integer bounds 1 <= min <= max <= 4294967295 and recognized optional features");
     }

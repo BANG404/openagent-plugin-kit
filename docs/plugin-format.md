@@ -419,6 +419,26 @@ cannot stop ordinary runtime finalization. Hooks never receive model context or
 Inspector and trace data. Explicit current execution text requires
 [conversation observations](#conversation-observations).
 
+### Context sessions
+
+Require `context-sessions-v1` to receive `event.context_session` on
+checkpoint-backed lifecycle events:
+
+```json
+{"version":1,"id":"64-lowercase-hex-characters","previous_id":"preceding-session-id","compaction_message_id":"durable-summary-message-id"}
+```
+
+Only `id` and `version` are required; before the first successful compaction the
+other fields are absent. A session belongs to one conversation, selected branch
+and durable context stage. Normal turns, tools, retries, approval resumes and
+restart/restoration retain it. Forks and child conversations have separate IDs.
+Each persisted compaction summary starts a new session linked by `previous_id`.
+Staging, failed compaction, UI notices and legacy replay messages do not create
+extra stages. This is content-free metadata and exposes no prompts or workspace
+paths. Older Runtimes reject the required feature. If an execution crosses a
+stage boundary, exporters split traces by stage and propagate its session ID to
+every observation, preserving the execution ID as correlation metadata.
+
 ### Conversation observations
 
 To observe authored chat text, declare the required Runtime feature
