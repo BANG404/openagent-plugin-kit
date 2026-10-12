@@ -1,0 +1,39 @@
+{
+  "description": "Conversation observations missing-consent",
+  "openagent": {
+    "compatibility": {
+      "plugin_protocol": {
+        "min": 1,
+        "max": 1
+      },
+      "features": [
+        "configuration-v1",
+        "conversation-observations-v1"
+      ]
+    },
+    "configuration": {
+      "version": 1,
+      "fields": [
+        {
+          "key": "capture",
+          "label": "Capture messages",
+          "type": "boolean",
+          "default": false
+        }
+      ]
+    },
+    "conversation_observations": {
+      "version": 1,
+      "consent_field": "missing"
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      {
+        "level": "error",
+        "contains": "Conversation observations require"
+      }
+    ]
+  }
+}

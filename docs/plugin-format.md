@@ -83,7 +83,7 @@ must not depend on punctuation to sort above a lower one.
 containing positive unsigned 32-bit `min` and `max` with `min <= max`. Unknown
 keys, missing bounds and malformed ranges reject the manifest. Optional
 `features` is an array of required Runtime features: `configuration-v1`,
-`plugin-oauth-v1`, `theme-v1`, and `integration-v1`. Unknown features reject the package. Older Runtimes reject
+`plugin-oauth-v1`, `theme-v1`, `integration-v1`, and `conversation-observations-v1`. Unknown features reject the package. Older Runtimes reject
 the new member instead of silently loading a package without its setup. The declaration
 is independent of the portable `$schema` and package `version`. When omitted,
 the Runtime treats it as `{ "min": 1, "max": 1 }`; this baseline does not advance
@@ -416,7 +416,45 @@ Lifecycle events: `session_start`, `session_end`, `user_prompt_submit`,
 The hook receives the event payload on stdin. A non-zero exit, timeout, or
 process error is isolated to that hook and reported in plugin diagnostics; it
 cannot stop ordinary runtime finalization. Hooks never receive model context or
-Inspector and trace data.
+Inspector and trace data. Explicit current execution text requires
+[conversation observations](#conversation-observations).
+
+### Conversation observations
+
+To observe authored chat text, declare the required Runtime feature
+`conversation-observations-v1` alongside `configuration-v1` and the verified
+protocol range. Add:
+
+```json
+"conversation_observations": {"version": 1, "consent_field": "capture-messages"}
+```
+
+The named configuration field must be a boolean with an explicit false default
+and no MCP binding. Unsupported versions, unknown members, missing features or
+an unsafe consent field reject the package. Older Runtimes reject the required
+feature; no silent fallback or transcript scraping is allowed.
+
+Only the user's saved true value grants access. Runtime checks the owning
+installed package's private settings for each hook launch. Stop may then contain
+an optional top-level `observation` object:
+
+```json
+{"version":1,"messages":[{"id":"message-id","role":"user","text":"authored input","truncated":false},{"id":"response-id","role":"assistant","text":"visible reply","truncated":false}],"truncated":false}
+```
+
+Messages belong to this execution: original user display text and its visible
+assistant segment, including partial terminal replies. A resumed execution has
+no new user input and contains only its new assistant segment. History, system
+prompts, reasoning, attachments, tool content, recalled/quoted context and
+internal/plugin messages are excluded. Up to 32 messages, 8192 UTF-8 bytes each,
+32768 text bytes total; UTF-8 truncation is flagged explicitly. Other events and
+ordinary user hooks retain their existing envelope without `observation`.
+
+Keep message capture separate from upload and tool capture, off by default.
+Recheck consent before retaining or exporting queued messages. Turning capture
+off suppresses pending bodies; turning it on does not enrich past records.
+Missing/unreadable settings fail closed. This interface grants no process,
+network, host access, sidebar transcript access or Inspector access.
 
 ## Plugin process confinement
 
