@@ -83,7 +83,7 @@ must not depend on punctuation to sort above a lower one.
 containing positive unsigned 32-bit `min` and `max` with `min <= max`. Unknown
 keys, missing bounds and malformed ranges reject the manifest. Optional
 `features` is an array of required Runtime features: `configuration-v1`,
-`plugin-oauth-v1`, `theme-v1`, `integration-v1`, and `conversation-observations-v1`. Unknown features reject the package. Older Runtimes reject
+`plugin-oauth-v1`, `theme-v1`, `integration-v1`, `conversation-observations-v1`, `context-sessions-v1`, and `model-observations-v1`. Unknown features reject the package. Older Runtimes reject
 the new member instead of silently loading a package without its setup. The declaration
 is independent of the portable `$schema` and package `version`. When omitted,
 the Runtime treats it as `{ "min": 1, "max": 1 }`; this baseline does not advance
@@ -600,3 +600,25 @@ Declare it inside the OpenAgent extension, for example:
 ```json
 {"extensions":{"openagent":{"category":"development"}}}
 ```
+
+## Model observations
+
+Require `model-observations-v1` and declare `extensions.openagent.model_observations`
+as `{"version":1,"consent_field":"capture-model-content"}`. The configuration
+field is a boolean with an explicit false default and no MCP binding. Saved
+owner consent alone permits a top-level `model_observation` on BeforeModel and
+AfterModel command hooks. The consent field must be distinct from chat-message
+consent; sharing the field rejects the package.
+
+Each pair has a unique `event.model_request_id`, including provider retries.
+Version 1 carries bounded OpenAI-shaped non-system text messages, tool calls
+and tool results from that call's canonical chat projection; AfterModel carries
+only that response, with configured provider/model and reported token usage.
+System instructions, reasoning, attachment bytes, injected non-message context,
+tool definitions and credentials are excluded. Input is the message projection
+before provider-specific wire serialization, not a raw HTTP request. Text is
+bounded to 8192 UTF-8 bytes per field and 32768 serialized message bytes per side;
+128 input messages retain the newest context and report truncation explicitly.
+An unfinished request has input only and must be marked incomplete, never filled
+with the execution's final reply. Ordinary automation and sidebar frames receive
+no model body. Exporters recheck live consent for queued retries.

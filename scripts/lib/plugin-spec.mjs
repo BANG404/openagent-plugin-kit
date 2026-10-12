@@ -443,6 +443,7 @@ function inspectExtensions(root, report, openagent) {
     "compatibility",
     "configuration",
     "conversation_observations",
+    "model_observations",
   ]);
   for (const key of unread) {
     push(
@@ -482,7 +483,7 @@ function inspectExtensions(root, report, openagent) {
     const range = compatibility?.plugin_protocol;
     if (!isPlainObject(compatibility) || unknownKeys(compatibility, ["plugin_protocol", "features"]).length ||
         !isPlainObject(range) || unknownKeys(range, ["min", "max"]).length ||
-        (compatibility.features !== undefined && (!Array.isArray(compatibility.features) || compatibility.features.some(feature => !["configuration-v1", "plugin-oauth-v1", "theme-v1", "integration-v1", "conversation-observations-v1", "context-sessions-v1"].includes(feature)))) ||
+        (compatibility.features !== undefined && (!Array.isArray(compatibility.features) || compatibility.features.some(feature => !["configuration-v1", "plugin-oauth-v1", "theme-v1", "integration-v1", "conversation-observations-v1", "context-sessions-v1", "model-observations-v1"].includes(feature)))) ||
         !Number.isInteger(range.min) || !Number.isInteger(range.max) || range.min < 1 || range.min > range.max || range.max > 0xffffffff) {
       push(report, "error", "extensions.openagent.compatibility requires plugin_protocol with integer bounds 1 <= min <= max <= 4294967295 and recognized optional features");
     }
@@ -491,14 +492,18 @@ function inspectExtensions(root, report, openagent) {
     const reason = validateConfiguration(openagent.configuration, openagent.compatibility?.features);
     if (reason) push(report, "error", reason);
   }
-  if (openagent.conversation_observations !== undefined) {
-    const declaration = openagent.conversation_observations;
+  for (const [member, feature] of [["conversation_observations", "conversation-observations-v1"], ["model_observations", "model-observations-v1"]]) {
+    if (openagent[member] === undefined) continue;
+    const declaration = openagent[member];
+    if (member === "model_observations" && typeof declaration?.consent_field === "string" && declaration.consent_field === openagent.conversation_observations?.consent_field) {
+      push(report, "error", "Model observations require a separate consent field");
+    }
     const field = Array.isArray(openagent.configuration?.fields) ? openagent.configuration.fields.find(field => field?.key === declaration?.consent_field) : undefined;
     if (!isPlainObject(declaration) || unknownKeys(declaration, ["version", "consent_field"]).length ||
         declaration.version !== 1 || typeof declaration.consent_field !== "string" ||
-        !Array.isArray(openagent.compatibility?.features) || !openagent.compatibility.features.includes("conversation-observations-v1") ||
+        !Array.isArray(openagent.compatibility?.features) || !openagent.compatibility.features.includes(feature) ||
         !field || field.type !== "boolean" || field.default !== false || field.secret === true || field.mcp !== undefined) {
-      push(report, "error", "Conversation observations require conversation-observations-v1 and a boolean consent field defaulting to false");
+      push(report, "error", member === "conversation_observations" ? "Conversation observations require conversation-observations-v1 and a boolean consent field defaulting to false" : `Model observations require model-observations-v1 and a boolean consent field defaulting to false`);
     }
   }
   if (openagent.mcp_tool_mode !== undefined && !["direct", "relay"].includes(openagent.mcp_tool_mode)) {

@@ -1,0 +1,39 @@
+{
+  "description": "Model observations future-version",
+  "openagent": {
+    "compatibility": {
+      "plugin_protocol": {
+        "min": 1,
+        "max": 1
+      },
+      "features": [
+        "configuration-v1",
+        "model-observations-v1"
+      ]
+    },
+    "configuration": {
+      "version": 1,
+      "fields": [
+        {
+          "key": "capture",
+          "label": "Capture messages",
+          "type": "boolean",
+          "default": false
+        }
+      ]
+    },
+    "model_observations": {
+      "version": 2,
+      "consent_field": "capture"
+    }
+  },
+  "expect": {
+    "valid": false,
+    "diagnostics": [
+      {
+        "level": "error",
+        "contains": "Model observations require"
+      }
+    ]
+  }
+}
