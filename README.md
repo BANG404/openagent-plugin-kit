@@ -1,4 +1,6 @@
-# Plugin Developer / 插件开发助手
+# Plugin Developer
+
+Create OpenAgent plugins from requirements or templates, then develop, test, and validate them for installation.
 
 **Plugin Developer** is the installable development assistant shipped by the
 **OpenAgent Plugin Kit** repository. Its stable package ID is

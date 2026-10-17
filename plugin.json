@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "openagent-plugin-kit",
-  "version": "1.13.0",
-  "description": "Create plugins from Skills and templates, implement, test and qualify them with the production Runtime.",
+  "version": "1.13.1",
+  "description": "Create OpenAgent plugins from requirements or templates, then develop, test, and validate them for installation.",
   "license": "MIT",
   "repository": "https://github.com/BANG404/openagent-plugin-kit",
   "keywords": [
@@ -87,7 +87,7 @@
         "translations": {
           "en": {
             "display_name": "Plugin Developer",
-            "description": "Create plugins from Skills and templates, implement, test and qualify them with the production Runtime.",
+            "description": "Create OpenAgent plugins from requirements or templates, then develop, test, and validate them for installation.",
             "commands.create.label": "Create plugin",
             "commands.create.description": "Start plugin development and acceptance",
             "commands.resume.label": "Resume development",
@@ -101,7 +101,7 @@
           },
           "zh": {
             "display_name": "插件开发助手",
-            "description": "结合 Skills 和模板创建插件，完成开发、测试及生产 Runtime 验证。",
+            "description": "根据需求或模板创建 OpenAgent 插件，完成开发、测试和安装前验证。",
             "commands.create.label": "创建插件",
             "commands.create.description": "开始插件开发与验收流程",
             "commands.resume.label": "恢复开发",

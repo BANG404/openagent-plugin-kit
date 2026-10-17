@@ -59,6 +59,15 @@ package can carry fields meant for another host. The loader never downloads a
 schema while loading a package; it selects its bundled 1.0.0 rules from the
 `$schema` value.
 
+Host-visible names should identify the function, retaining service brands where
+applicable. Descriptions explain concrete actions and material prerequisites in
+plain language; transport and packaging details belong in setup documentation.
+Theme descriptions explain their declared colors, typography and spacing rather
+than recipe IDs. Keep localized metadata, package-named command/sidebar labels,
+README summaries and discovery catalog presentation consistent. Root `name`
+remains the stable package ID; presentation changes advance the package version
+without renaming commands, data directories or update subscriptions.
+
 ### Version comparison
 
 `version` is free-form, and a value the runtime cannot parse is never grounds
