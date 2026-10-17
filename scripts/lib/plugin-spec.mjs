@@ -393,13 +393,13 @@ function validateConfiguration(schema, features) {
   return null;
 }
 
-function validatePresentation(openagent) {
+function validatePresentation(openagent, root) {
   const type = openagent.type === undefined ? "agent" : openagent.type;
   if (!["agent", "theme", "integration"].includes(type)) return "extensions.openagent.type must be 'agent', 'theme' or 'integration'";
   if (type !== "theme" && openagent.theme !== undefined) return "extensions.openagent.theme requires type 'theme'";
   if (type === "theme") {
     const theme = openagent.theme;
-    if (!isPlainObject(theme) || unknownKeys(theme, ["version", "tokens", "light", "dark"]).length || theme.version !== 1)
+    if (!isPlainObject(theme) || unknownKeys(theme, ["version", "tokens", "light", "dark", "fonts"]).length || theme.version !== 1)
       return "extensions.openagent.theme requires version 1 and token maps";
     let count = 0;
     for (const group of ["tokens", "light", "dark"]) {
@@ -415,6 +415,33 @@ function validatePresentation(openagent) {
       }
     }
     if (count < 1 || count > 256) return "extensions.openagent.theme requires 1..256 tokens";
+    if (theme.fonts !== undefined) {
+      if (!Array.isArray(theme.fonts) || theme.fonts.length > 16) return "theme.fonts accepts at most 16 faces";
+      if (theme.fonts.length && (!Array.isArray(openagent.compatibility?.features) || !openagent.compatibility.features.includes("theme-fonts-v1")))
+        return "theme.fonts requires compatibility.features: theme-fonts-v1";
+      const seen = new Set();
+      let total = 0;
+      for (const font of theme.fonts) {
+        if (!isPlainObject(font) || unknownKeys(font, ["family", "entry", "weight", "style"]).length ||
+            typeof font.family !== "string" || !font.family.trim() || Buffer.byteLength(font.family) > 100 ||
+            !/^[\p{L}\p{N} _-]+$/u.test(font.family)) return "invalid theme font descriptor";
+        const weight = font.weight === undefined ? "normal" : font.weight;
+        const style = font.style === undefined ? "normal" : font.style;
+        const weights = typeof weight === "string" && /^\d+( \d+)?$/.test(weight) ? weight.split(" ").map(Number) : [];
+        if ((!['normal', 'bold'].includes(weight) && !(weights.length && weights.every(w => w >= 1 && w <= 1000) && (weights.length === 1 || weights[0] <= weights[1]))) ||
+            !['normal', 'italic', 'oblique'].includes(style)) return "invalid theme font descriptor";
+        const key = JSON.stringify([font.family, weight, style]);
+        if (seen.has(key)) return "duplicate theme font descriptor";
+        seen.add(key);
+        const file = resolveContainedFile(root, font.entry);
+        if (!file.ok) return `invalid theme font entry: ${file.reason}`;
+        const size = statSync(file.path).size;
+        if (size > 8 * 1024 * 1024 || (total += size) > 32 * 1024 * 1024) return "theme font size limit exceeded";
+        const bytes = readFileSync(file.path);
+        const signature = { '.woff2': 'wOF2', '.woff': 'wOFF', '.ttf': '\x00\x01\x00\x00', '.otf': 'OTTO' }[path.extname(font.entry)];
+        if (!signature || bytes.subarray(0, 4).toString('latin1') !== signature) return "invalid theme font format";
+      }
+    }
   }
   if (type !== "agent" && (!Array.isArray(openagent.compatibility?.features) || !openagent.compatibility.features.includes(`${type}-v1`)))
     return `extensions.openagent.type requires compatibility.features: ${type}-v1`;
@@ -456,7 +483,7 @@ function inspectExtensions(root, report, openagent) {
   if (openagent.category !== undefined && !["development", "productivity", "communication", "automation", "data", "design", "other"].includes(openagent.category)) {
     push(report, "error", "extensions.openagent.category must be a recognized category ID");
   }
-  const presentationError = validatePresentation(openagent);
+  const presentationError = validatePresentation(openagent, root);
   if (presentationError) push(report, "error", presentationError);
   const capabilities = stringArray(openagent.capabilities);
   if (openagent.ui_components !== undefined) {
@@ -483,7 +510,7 @@ function inspectExtensions(root, report, openagent) {
     const range = compatibility?.plugin_protocol;
     if (!isPlainObject(compatibility) || unknownKeys(compatibility, ["plugin_protocol", "features"]).length ||
         !isPlainObject(range) || unknownKeys(range, ["min", "max"]).length ||
-        (compatibility.features !== undefined && (!Array.isArray(compatibility.features) || compatibility.features.some(feature => !["configuration-v1", "plugin-oauth-v1", "theme-v1", "integration-v1", "conversation-observations-v1", "context-sessions-v1", "model-observations-v1"].includes(feature)))) ||
+        (compatibility.features !== undefined && (!Array.isArray(compatibility.features) || compatibility.features.some(feature => !["configuration-v1", "plugin-oauth-v1", "theme-v1", "theme-fonts-v1", "integration-v1", "conversation-observations-v1", "context-sessions-v1", "model-observations-v1"].includes(feature)))) ||
         !Number.isInteger(range.min) || !Number.isInteger(range.max) || range.min < 1 || range.min > range.max || range.max > 0xffffffff) {
       push(report, "error", "extensions.openagent.compatibility requires plugin_protocol with integer bounds 1 <= min <= max <= 4294967295 and recognized optional features");
     }

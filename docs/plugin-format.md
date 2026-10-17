@@ -83,7 +83,7 @@ must not depend on punctuation to sort above a lower one.
 containing positive unsigned 32-bit `min` and `max` with `min <= max`. Unknown
 keys, missing bounds and malformed ranges reject the manifest. Optional
 `features` is an array of required Runtime features: `configuration-v1`,
-`plugin-oauth-v1`, `theme-v1`, `integration-v1`, `conversation-observations-v1`, `context-sessions-v1`, and `model-observations-v1`. Unknown features reject the package. Older Runtimes reject
+`plugin-oauth-v1`, `theme-v1`, `theme-fonts-v1`, `integration-v1`, `conversation-observations-v1`, `context-sessions-v1`, and `model-observations-v1`. Unknown features reject the package. Older Runtimes reject
 the new member instead of silently loading a package without its setup. The declaration
 is independent of the portable `$schema` and package `version`. When omitted,
 the Runtime treats it as `{ "min": 1, "max": 1 }`; this baseline does not advance
@@ -115,8 +115,7 @@ structural boundary; the package validator enforces aggregate and byte bounds.
 
 Use existing application CSS variables for colors, surfaces, typography where
 exposed, radii, spacing, shadows and motion. Common `tokens` apply before the
-resolved light/dark map. Enabled themes apply in ascending ASCII package-ID
-order, with later values winning; disablement/removal restores the original
+resolved light/dark map. Only the selected enabled theme applies; disablement/removal restores the original
 styles. No executable stylesheet or remote resource is loaded.
 
 The authoring validator requires `theme-v1` or `integration-v1` in
@@ -622,3 +621,20 @@ bounded to 8192 UTF-8 bytes per field and 32768 serialized message bytes per sid
 An unfinished request has input only and must be marked incomplete, never filled
 with the execution's final reply. Ordinary automation and sidebar frames receive
 no model body. Exporters recheck live consent for queued retries.
+
+### Bundled theme fonts
+
+Add `theme.fonts` and require `theme-fonts-v1` alongside `theme-v1`. Every face
+contains `family` and a package-relative `entry` ending in .woff2, .woff, .ttf or
+.otf. Optional `weight` defaults to normal (also bold, or one/two ascending
+integers in 1–1000); optional `style` is normal, italic or oblique. Family names
+use letters/numbers/spaces/underscore/hyphen and at most 100 UTF-8 bytes.
+For example: `{"family":"My Sans","entry":"fonts/my-sans.woff2","weight":"100 900"}`.
+Reference the family in theme font tokens. Ship font licenses and provenance.
+At most 16 unique family/weight/style faces, 8 MiB per file and 32 MiB per theme
+are accepted; signatures must match extensions and resolved files must stay
+inside the package. Missing/bad files reject installation. No CSS or remote URL
+is needed. The application reads declared binary entries through its SDK,
+registers only the selected enabled theme, and removes faces on lifecycle
+changes. Read/decode failures use system fallbacks. Old Runtimes reject the
+feature; token-only themes remain valid.
