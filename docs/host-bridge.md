@@ -43,6 +43,17 @@ The modules are:
 - `host.call('runtime.permissions')` returns the version-one live session
   permission profile used by [isolated development acceptance](development-workflow.md).
 
+## Runtime plugin contract
+
+`await host.call('runtime.plugin_contract')` returns
+`{plugin_protocol: 1, features: string[]}` for the authenticated enabled package.
+Use this for optional capabilities; an older Runtime may reject the operation,
+so handle that response as unavailable support. Declare mandatory protocol
+ranges and versioned features in `extensions.openagent.compatibility` so the
+loader rejects unsupported packages before executing their code. A Runtime
+release version or a source hash cannot substitute for this contract. The
+package version identifies its own release and advances independently.
+
 ## Local embedding
 
 The optional embedding capability reuses the Runtime's already-loaded local

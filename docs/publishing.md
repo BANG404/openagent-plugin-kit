@@ -48,6 +48,21 @@ optional capabilities before using them, and handle older Runtimes explicitly.
 Do not widen `compatibility.plugin_protocol` without verification. Package data
 migrations remain package-owned and need recovery coverage.
 
+Declare every mandatory capability in `compatibility.features`. Release notes
+must publish the same feature list alongside the protocol range; the Runtime
+filters release history using both and validates the downloaded archive again.
+Use `host.call('runtime.plugin_contract')` for optional capability detection,
+handling older Runtimes that reject that operation. Runtime SemVer identifies
+the Runtime release; it does not replace your package version or contract.
+
+A Runtime upgrade may prepare a newer compatible package before stopping the
+old Runtime. If no compatible release can be downloaded, activation is blocked;
+incompatible local packages must be refreshed or disabled explicitly. The
+Runtime snapshots changed packages, plugin-data and settings and restores them
+together if candidate activation fails. Keep package data migrations recoverable
+for ordinary package updates as well; do not rely on Runtime upgrade snapshots
+as a general package migration mechanism.
+
 ## Release assets
 
 Attach the packaged plugin to the GitHub release as a single archive. OpenAgent
